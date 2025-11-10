@@ -1,11 +1,11 @@
 ## Todo:
-1. - [x]  Create Auth Context and in that store user details in localStorage and only fetch user data when ever the username changes this will resolve the issue of data retention in dashboard page.
+ - [x]  Create Auth Context and in that store user details in localStorage and only fetch user data when ever the username changes this will resolve the issue of data retention in dashboard page.
 
 > PS: the first step has been done know based on the data received make sure that the data on the dashboard is saved on changes.
 > Also remove the redux store for sharing between dashboard components as they are used inside the form so the form has already access to the data they provide redux store will only add complexity.
-> There were flags set to let the server know that some data on the client side has been deleted to reflect those changes in the database as well. so remove them and make sure that even without them this process still happens fine
 
-2.  Also after the user is changing the profile and navigates to another page midway then just rest the changes or make sure to display a dialogue box and inform the user and ask for confirmation.
+
+ - [x] There is an issue that when the user removes his profile photos and others and then updates the information it does not save it needs to be resolved.
 
 3.  After this check ways to improve navigation speed.
 

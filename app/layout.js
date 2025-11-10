@@ -2,9 +2,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/contexts/AuthContext";
+// The following are not directly used in here because they
+// need to be client side and the metadata in here needs to be server side, so mixing them will cause an error
 import SessionWrapper from "@/providers/SessionWrapper";
 import ReduxProvider from "@/providers/ReduxProvider";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

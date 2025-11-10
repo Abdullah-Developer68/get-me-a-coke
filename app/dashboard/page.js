@@ -13,13 +13,17 @@ export default function Dashboard() {
   const [edits, setEdits] = useState(
     typeof window !== "undefined" && localStorage.getItem("edits")
       ? JSON.parse(localStorage.getItem("edits"))
-      : undefined
+      : undefined,
   );
 
   // states for form fields and previews
   const [name, setName] = useState("");
   const [profilePreviewUrl, setProfilePreviewUrl] = useState("");
   const [coverPreviewUrl, setCoverPreviewUrl] = useState("");
+
+  // Flags to track if images were explicitly removed
+  const [profileRemoved, setProfileRemoved] = useState(false);
+  const [coverRemoved, setCoverRemoved] = useState(false);
 
   // Files preview handler
   const filePreview = (e) => {
@@ -30,19 +34,21 @@ export default function Dashboard() {
     reader.onload = () => {
       if (e.target.id === "profile") {
         setProfilePreviewUrl(reader.result);
+        setProfileRemoved(false); // Reset flag when new image is selected
         // store the unsaved changes
         setEdits((prev) => ({ ...prev, profilePic: reader.result }));
         localStorage.setItem(
           "edits",
-          JSON.stringify({ ...edits, profilePic: reader.result })
+          JSON.stringify({ ...edits, profilePic: reader.result }),
         );
       } else if (e.target.id === "cover") {
         setCoverPreviewUrl(reader.result);
+        setCoverRemoved(false); // Reset flag when new image is selected
         // store the unsaved changes
         setEdits((prev) => ({ ...prev, coverPic: reader.result }));
         localStorage.setItem(
           "edits",
-          JSON.stringify({ ...edits, coverPic: reader.result })
+          JSON.stringify({ ...edits, coverPic: reader.result }),
         );
       }
     };
@@ -52,21 +58,23 @@ export default function Dashboard() {
   const removeFile = (type) => {
     if (type === "profile") {
       setProfilePreviewUrl("/profilePic.png");
+      setProfileRemoved(true); // Set flag when image is removed
       document.getElementById("profile").value = "";
       // update edits
       setEdits((prev) => ({ ...prev, profilePic: "" }));
       localStorage.setItem(
         "edits",
-        JSON.stringify({ ...edits, profilePic: "/profilePic.png" })
+        JSON.stringify({ ...edits, profilePic: "/profilePic.png" }),
       );
     } else if (type === "cover") {
       setCoverPreviewUrl("/coverImage.png");
+      setCoverRemoved(true); // Set flag when image is removed
       document.getElementById("cover").value = "";
       // update edits
       setEdits((prev) => ({ ...prev, coverPic: "" }));
       localStorage.setItem(
         "edits",
-        JSON.stringify({ ...edits, coverPic: "/coverImage.png" })
+        JSON.stringify({ ...edits, coverPic: "/coverImage.png" }),
       );
     }
   };
@@ -77,7 +85,7 @@ export default function Dashboard() {
     setEdits((prev) => ({ ...prev, name: e.target.value }));
     localStorage.setItem(
       "edits",
-      JSON.stringify({ ...edits, name: e.target.value })
+      JSON.stringify({ ...edits, name: e.target.value }),
     );
   };
 
@@ -109,10 +117,10 @@ export default function Dashboard() {
       // Form Fields -> last edits > userInfo > placeholders
       setName(edits?.name || userInfo.name || "Enter your name");
       setProfilePreviewUrl(
-        edits?.profilePic || userInfo.profilePic || "/profilePic.png"
+        edits?.profilePic || userInfo.profilePic || "/profilePic.png",
       );
       setCoverPreviewUrl(
-        edits?.coverPic || userInfo.coverPic || "/coverImage.png"
+        edits?.coverPic || userInfo.coverPic || "/coverImage.png",
       );
     }
   }, [userInfo]); // Run when userInfo changes
@@ -141,6 +149,18 @@ export default function Dashboard() {
             {/* Main Form Card */}
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8">
               <form action={uploadUserInfoAction} className="space-y-8">
+                {/* Hidden inputs to send removal flags */}
+                <input
+                  type="hidden"
+                  name="profileRemoved"
+                  value={profileRemoved.toString()}
+                />
+                <input
+                  type="hidden"
+                  name="coverRemoved"
+                  value={coverRemoved.toString()}
+                />
+
                 {/* Profile Information Section */}
                 <div className="space-y-6">
                   <h2 className="text-2xl font-semibold text-white mb-6">

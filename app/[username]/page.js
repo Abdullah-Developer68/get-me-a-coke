@@ -117,13 +117,14 @@ const Username = () => {
           <div className="flex flex-col items-center relative w-full mt-0 pt-0">
             <div className="cover w-full">
               {cover ? (
+                // Width and Height attributes don't apply these. They just informt Next.js to optimize the image for this size
                 <Image
                   src={cover}
                   alt="cover page"
                   width={1920}
                   height={480}
                   priority
-                  className="w-full object-cover block"
+                  className="w-full h-[480px] object-cover block"
                 />
               ) : (
                 <div className="w-full h-[480px] bg-gray-800 animate-pulse" />
@@ -134,9 +135,9 @@ const Username = () => {
                 <Image
                   src={profile}
                   alt="profile pic"
-                  width={96}
-                  height={96}
-                  className="w-24 rounded-full"
+                  width={128}
+                  height={128}
+                  className="w-32 h-32 object-cover rounded-full"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-700 animate-pulse" />
