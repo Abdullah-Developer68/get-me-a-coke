@@ -66,7 +66,7 @@ export default function Dashboard() {
       setProfileRemoved(true); // Set flag when image is removed
       document.getElementById("profile").value = "";
       // update edits
-      setEdits((prev) => ({ ...prev, profilePic: "" }));
+      setEdits((prev) => ({ ...prev, profilePic: "/profilePic.png" }));
 
       localStorage.setItem(
         "edits",
@@ -77,7 +77,7 @@ export default function Dashboard() {
       setCoverRemoved(true); // Set flag when image is removed
       document.getElementById("cover").value = "";
       // update edits
-      setEdits((prev) => ({ ...prev, coverPic: "" }));
+      setEdits((prev) => ({ ...prev, coverPic: "/coverImage.png" }));
       localStorage.setItem(
         "edits",
         JSON.stringify({ ...edits, coverPic: "/coverImage.png" })
@@ -95,16 +95,16 @@ export default function Dashboard() {
     );
   };
 
-  const removeEdits = () => {
-    if (
-      edits.name !== userInfo.name ||
-      edits.profilePic !== userInfo.profilePic ||
-      edits.coverPic !== userInfo.coverPic
-    ) {
-      setEdits(undefined);
-      localStorage.removeItem("edits");
-    }
-  };
+  // const removeEdits = () => {
+  //   if (
+  //     edits.name !== userInfo.name ||
+  //     edits.profilePic !== userInfo.profilePic ||
+  //     edits.coverPic !== userInfo.coverPic
+  //   ) {
+  //     setEdits(undefined);
+  //     localStorage.removeItem("edits");
+  //   }
+  // };
 
   // On refresh, the userInfo from context may take some time to load
   // So, we use useEffect to update the states when userInfo changes
@@ -309,7 +309,6 @@ export default function Dashboard() {
                   <button
                     type="submit"
                     className="rounded-md bg-green-500 px-8 py-3 text-lg font-semibold text-black transition-all hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500/40"
-                    onClick={removeEdits}
                   >
                     Update Profile
                   </button>
