@@ -3,9 +3,11 @@
 import { uploadUserInfoAction } from "@/actions/uploadUserInfoAction";
 import useAuth from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Dashboard() {
+  const router = useRouter();
   // Auth context
   const { userInfo, isLoading } = useAuth();
 
@@ -13,7 +15,7 @@ export default function Dashboard() {
   const [edits, setEdits] = useState(
     typeof window !== "undefined" && localStorage.getItem("edits")
       ? JSON.parse(localStorage.getItem("edits"))
-      : undefined,
+      : undefined
   );
 
   // states for form fields and previews
@@ -39,7 +41,7 @@ export default function Dashboard() {
         setEdits((prev) => ({ ...prev, profilePic: reader.result }));
         localStorage.setItem(
           "edits",
-          JSON.stringify({ ...edits, profilePic: reader.result }),
+          JSON.stringify({ ...edits, profilePic: reader.result })
         );
       } else if (e.target.id === "cover") {
         setCoverPreviewUrl(reader.result);
@@ -48,7 +50,7 @@ export default function Dashboard() {
         setEdits((prev) => ({ ...prev, coverPic: reader.result }));
         localStorage.setItem(
           "edits",
-          JSON.stringify({ ...edits, coverPic: reader.result }),
+          JSON.stringify({ ...edits, coverPic: reader.result })
         );
       }
     };
@@ -64,7 +66,7 @@ export default function Dashboard() {
       setEdits((prev) => ({ ...prev, profilePic: "" }));
       localStorage.setItem(
         "edits",
-        JSON.stringify({ ...edits, profilePic: "/profilePic.png" }),
+        JSON.stringify({ ...edits, profilePic: "/profilePic.png" })
       );
     } else if (type === "cover") {
       setCoverPreviewUrl("/coverImage.png");
@@ -74,7 +76,7 @@ export default function Dashboard() {
       setEdits((prev) => ({ ...prev, coverPic: "" }));
       localStorage.setItem(
         "edits",
-        JSON.stringify({ ...edits, coverPic: "/coverImage.png" }),
+        JSON.stringify({ ...edits, coverPic: "/coverImage.png" })
       );
     }
   };
@@ -85,7 +87,7 @@ export default function Dashboard() {
     setEdits((prev) => ({ ...prev, name: e.target.value }));
     localStorage.setItem(
       "edits",
-      JSON.stringify({ ...edits, name: e.target.value }),
+      JSON.stringify({ ...edits, name: e.target.value })
     );
   };
 
@@ -97,6 +99,18 @@ export default function Dashboard() {
     ) {
       setEdits(undefined);
       localStorage.removeItem("edits");
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
+    // e is passed automatically by the onSubmit event
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const result = await uploadUserInfoAction(formData);
+
+    if (result.ok && userInfo?.username) {
+      // navigate to user's profile page
+      router.push(`/${userInfo.username}`);
     }
   };
 
@@ -117,13 +131,13 @@ export default function Dashboard() {
       // Form Fields -> last edits > userInfo > placeholders
       setName(edits?.name || userInfo.name || "Enter your name");
       setProfilePreviewUrl(
-        edits?.profilePic || userInfo.profilePic || "/profilePic.png",
+        edits?.profilePic || userInfo.profilePic || "/profilePic.png"
       );
       setCoverPreviewUrl(
-        edits?.coverPic || userInfo.coverPic || "/coverImage.png",
+        edits?.coverPic || userInfo.coverPic || "/coverImage.png"
       );
     }
-  }, [userInfo]); // Run when userInfo changes
+  }, [userInfo, edits]); // Run when userInfo or edits changes
 
   if (isLoading) {
     return (
@@ -148,7 +162,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-8">
             {/* Main Form Card */}
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8">
-              <form action={uploadUserInfoAction} className="space-y-8">
+              <form onSubmit={handleFormSubmit} className="space-y-8">
                 {/* Hidden inputs to send removal flags */}
                 <input
                   type="hidden"
