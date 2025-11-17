@@ -60,7 +60,7 @@ export async function uploadUserInfoAction(formData) {
 
     const DEFAULTS = {
       profilePic: "/profilePic.png",
-      coverPic: "/coverImage.PNG",
+      coverPic: "/coverImage.png",
     };
 
     // Upload in parallel (if provided). If user explicitly removed, do not upload; just set default
@@ -92,7 +92,14 @@ export async function uploadUserInfoAction(formData) {
     // If nothing to update, return current user (as plain object)
     if (Object.keys(update).length === 0) {
       const safe = userExists.toObject ? userExists.toObject() : userExists;
-      const { _id, name: n, email: e, profilePic, coverPic } = safe || {};
+      const {
+        _id,
+        name: n,
+        email: e,
+        profilePic,
+        coverPic,
+        username,
+      } = safe || {};
 
       return {
         ok: true,
@@ -102,6 +109,7 @@ export async function uploadUserInfoAction(formData) {
           email: e,
           profilePic,
           coverPic,
+          username,
         },
       };
     }
@@ -116,7 +124,14 @@ export async function uploadUserInfoAction(formData) {
     const safeUpdated = updatedUser?.toObject
       ? updatedUser.toObject()
       : updatedUser;
-    const { _id, name: n, email: e, profilePic, coverPic } = safeUpdated || {};
+    const {
+      _id,
+      name: n,
+      email: e,
+      profilePic,
+      coverPic,
+      username,
+    } = safeUpdated || {};
     console.log("User info updated:", { email: e });
     return {
       ok: true,
@@ -126,6 +141,7 @@ export async function uploadUserInfoAction(formData) {
         email: e,
         profilePic,
         coverPic,
+        username,
       },
     };
   } catch (err) {

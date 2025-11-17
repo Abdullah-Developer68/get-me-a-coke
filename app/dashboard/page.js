@@ -3,11 +3,14 @@
 import { uploadUserInfoAction } from "@/actions/uploadUserInfoAction";
 import useAuth from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { tellToFetchData } from "@/redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 export default function Dashboard() {
   const router = useRouter();
+  const dispatch = useDispatch();
   // Auth context
   const { userInfo, isLoading } = useAuth();
 
@@ -64,6 +67,7 @@ export default function Dashboard() {
       document.getElementById("profile").value = "";
       // update edits
       setEdits((prev) => ({ ...prev, profilePic: "" }));
+
       localStorage.setItem(
         "edits",
         JSON.stringify({ ...edits, profilePic: "/profilePic.png" })
@@ -102,18 +106,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleFormSubmit = async (e) => {
-    // e is passed automatically by the onSubmit event
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const result = await uploadUserInfoAction(formData);
-
-    if (result.ok && userInfo?.username) {
-      // navigate to user's profile page
-      router.push(`/${userInfo.username}`);
-    }
-  };
-
   // On refresh, the userInfo from context may take some time to load
   // So, we use useEffect to update the states when userInfo changes
   useEffect(() => {
@@ -137,7 +129,7 @@ export default function Dashboard() {
         edits?.coverPic || userInfo.coverPic || "/coverImage.png"
       );
     }
-  }, [userInfo, edits]); // Run when userInfo or edits changes
+  }, [userInfo]); // Run when userInfo changes
 
   if (isLoading) {
     return (
@@ -146,6 +138,30 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    // Debug: Log FormData entries
+    console.log("FormData entries:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const res = await uploadUserInfoAction(formData);
+    if (!res.ok) {
+      alert("Error updating profile: " + res.error);
+      return;
+    }
+
+    dispatch(tellToFetchData()); // Tells the user's page to fetch updated data
+
+    // Small delay to ensure localStorage is written before redirect
+    setTimeout(() => {
+      router.push(`/${userInfo.username}`);
+    }, 100);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -162,7 +178,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-8">
             {/* Main Form Card */}
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8">
-              <form onSubmit={handleFormSubmit} className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Hidden inputs to send removal flags */}
                 <input
                   type="hidden"
@@ -213,15 +229,17 @@ export default function Dashboard() {
                         className="w-full rounded-md border border-gray-700 bg-gray-800/50 text-white file:mr-3 file:rounded file:border-0 file:bg-gray-500 file:px-3 file:py-1 file:text-white hover:file:bg-black hover:cursor-pointer hover:file:cursor-pointer transition-colors"
                         onChange={filePreview}
                       />
-                      {profilePreviewUrl && (
-                        <button
-                          type="button"
-                          onClick={() => removeFile("profile")}
-                          className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      )}
+                      {profilePreviewUrl &&
+                        profilePreviewUrl !== "/profilePic.png" &&
+                        profilePreviewUrl !== "" && (
+                          <button
+                            type="button"
+                            onClick={() => removeFile("profile")}
+                            className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
                     </div>
                     {/* Profile Preview (circular) */}
                     <div className="mt-2">
@@ -256,15 +274,17 @@ export default function Dashboard() {
                         className="w-full rounded-md border border-gray-700 bg-gray-800/50 text-white file:mr-3 file:rounded file:border-0 file:bg-gray-500 file:px-3 file:py-1 file:text-white hover:file:bg-black hover:cursor-pointer hover:file:cursor-pointer transition-colors"
                         onChange={filePreview}
                       />
-                      {coverPreviewUrl && (
-                        <button
-                          type="button"
-                          onClick={() => removeFile("cover")}
-                          className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      )}
+                      {coverPreviewUrl &&
+                        coverPreviewUrl !== "/coverImage.png" &&
+                        coverPreviewUrl !== "" && (
+                          <button
+                            type="button"
+                            onClick={() => removeFile("cover")}
+                            className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
                     </div>
                     {/* Cover Preview */}
                     <div className="mt-2 w-full h-40 rounded-md border border-gray-800 bg-gray-800/30 flex items-center justify-center overflow-hidden relative">

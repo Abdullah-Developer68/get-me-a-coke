@@ -3,16 +3,22 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { useSelector, useDispatch } from "react-redux";
+import { tellToFetchData } from "@/redux/slices/userSlice";
+import { fetchUpdatedUserInfo } from "@/lib/api";
 
 const Username = () => {
   // this is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
   const routeParams = useParams();
+  const dispatch = useDispatch();
   const username =
     typeof routeParams?.username === "string"
       ? routeParams.username
       : Array.isArray(routeParams?.username)
       ? routeParams.username[0]
       : "creator";
+
+  const isFetch = useSelector((state) => state.user.fetch);
 
   const { data: session, status } = useSession();
 
@@ -37,8 +43,27 @@ const Username = () => {
     if (!u) return;
     // Prefer DB fields, then any legacy fields, then provider image
     setProfile(u.profilePic ? u.profilePic : "/profilePic.png");
-    setCover(u.coverPic ? u.coverPic : "/coverImage.PNG");
+    setCover(u.coverPic ? u.coverPic : "/coverImage.png");
   }, [session]);
+
+  const fetchUserInfo = async (username) => {
+    if (isFetch === true) {
+      console.log("Fetch data changed in username page: ", isFetch);
+      const res = await fetchUpdatedUserInfo(username);
+      if (res) {
+        // tell the isFetch to disbable for the next time until the profile is updated again
+        dispatch(tellToFetchData());
+        setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
+        setCover(res.coverPic ? res.coverPic : "/coverImage.png");
+      } else {
+        return;
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUserInfo(username);
+  }, [isFetch, username]);
 
   // this sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {
