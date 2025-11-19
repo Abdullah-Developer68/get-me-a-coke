@@ -66,7 +66,8 @@ const Signup = () => {
   };
 
   // otp verification
-  const verifyOTP = async () => {
+  const verifyOTP = async (e) => {
+    e.preventDefault(); // this is done because by default the form submission refreshes the page
     if (!otp || otp.length !== 6 || isNaN(Number(otp))) {
       alert("Please enter a valid 6-digit OTP");
       return;
@@ -92,7 +93,8 @@ const Signup = () => {
   };
 
   // for final signup after OTP verified and password valid
-  const localSignup = async () => {
+  const localSignup = async (e) => {
+    e.preventDefault();
     if (password.length < 8 || password.includes(" ")) {
       alert(
         "Password must be at least 8 characters long and cannot contain spaces."
@@ -105,19 +107,19 @@ const Signup = () => {
       return;
     }
 
-    const res = await fetch("/api/auth/localAuth/signUp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email: receiverEmail, password }),
+    // Sign in using NextAuth credentials provider
+    const result = await signIn("credentials", {
+      email: receiverEmail,
+      password: password,
+      redirect: false,
     });
 
-    if (res.ok) {
-      alert("Sign up successful!");
-      router.push("/");
+    if (result?.error) {
+      alert("Sign in failed: " + result.error);
     } else {
-      alert("Sign up failed. Please try again.");
+      alert("Sign up successful! Logging you in...");
+      // Successfully signed in with session created
+      router.push("/dashboard");
     }
   };
 
@@ -166,7 +168,12 @@ const Signup = () => {
                 <div className={`gap-2 ${showOtpBox ? "grid" : "hidden"}`}>
                   <Label htmlFor="otp">Enter OTP</Label>
                   <div className="flex justify-center mt-2">
-                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                    <InputOTP
+                      id="otp"
+                      maxLength={6}
+                      value={otp}
+                      onChange={setOtp}
+                    >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />
@@ -182,6 +189,7 @@ const Signup = () => {
                   </div>
                   <div className="flex justify-center mt-2">
                     <Button
+                      type="button"
                       variant="default"
                       className="w-32"
                       onClick={verifyOTP}
@@ -192,27 +200,29 @@ const Signup = () => {
                   </div>
                 </div>
                 {/* Password */}
-                <div className={`${showPassBox ? "" : "hidden"}`}>
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    {/* No separate save button; password saved on Sign up */}
-                  </div>
-                </div>
+                {showPassBox && (
+                  <>
+                    <div className="flex items-center">
+                      <Label htmlFor="password">Password</Label>
+                      <a
+                        href="#"
+                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                      >
+                        Forgot your password?
+                      </a>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                      {/* No separate save button; password saved on Sign up */}
+                    </div>
+                  </>
+                )}
               </div>
             </form>
           </CardContent>

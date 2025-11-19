@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import User from "@/models/User";
 import dbConnect from "@/db/dbConnect";
 export const runtime = "nodejs";
+
 export async function POST(request) {
   try {
     const { name, receiverEmail } = await request.json();
@@ -41,8 +42,9 @@ export async function POST(request) {
       email: receiverEmail,
       otp, // Store OTP in the user document
       status: "verifying",
-  // Required by User schema (enum: ["github", "local"]) so local pre-signup validates
-  signMethod: "local",
+      // Required by User schema (enum: ["github", "local"]) so local pre-signup validates
+      signMethod: "local",
+      password: "temp_pending_password", // Placeholder - will be replaced during verification
     });
 
     // Configure Email Data

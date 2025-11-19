@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -20,6 +20,9 @@ import Link from "next/link";
 const Login = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // React expects no side effects to run during rendering phase of the component, but can not can not stop us from doing this.
   // First the login page renders and user clicks the login with github, so an update to session was made
@@ -38,6 +41,29 @@ const Login = () => {
     }
   }, [session, router]);
 
+  const handleCredentialsLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        alert("Login failed: " + result.error);
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (error) {
+      alert("An error occurred during login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center justify-center min-h-screen">
@@ -54,7 +80,7 @@ const Login = () => {
             </CardAction>
           </CardHeader>
           <CardContent>
-            <form>
+            <form onSubmit={handleCredentialsLogin}>
               <div className="flex flex-col gap-6 text-white">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
@@ -62,6 +88,8 @@ const Login = () => {
                     id="email"
                     type="email"
                     placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -75,14 +103,25 @@ const Login = () => {
                       Forgot your password?
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            <Button type="submit" className="w-full">
-              Login
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={handleCredentialsLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
             <div className="flex items-center justify-center gap-2 w-full relative">
               <Button

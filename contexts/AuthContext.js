@@ -74,7 +74,9 @@ const AuthProvider = ({ children }) => {
   }, [loadFromStorage]);
 
   return (
-    <AuthContext.Provider value={{ userInfo, isLoading, status }}>
+    <AuthContext.Provider
+      value={{ userInfo, isLoading, status, clearDataOnLogout }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: function () {
-        return this.signMethod === "local";
+        return this.signMethod === "local" && this.status !== "verifying";
       },
     }, // hashed password for local auth
   },
