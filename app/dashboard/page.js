@@ -95,17 +95,6 @@ export default function Dashboard() {
     );
   };
 
-  // const removeEdits = () => {
-  //   if (
-  //     edits.name !== userInfo.name ||
-  //     edits.profilePic !== userInfo.profilePic ||
-  //     edits.coverPic !== userInfo.coverPic
-  //   ) {
-  //     setEdits(undefined);
-  //     localStorage.removeItem("edits");
-  //   }
-  // };
-
   // On refresh, the userInfo from context may take some time to load
   // So, we use useEffect to update the states when userInfo changes
   useEffect(() => {
@@ -156,6 +145,16 @@ export default function Dashboard() {
     }
 
     dispatch(tellToFetchData()); // Tells the user's page to fetch updated data
+    // Update userInfo with the latest changes and the previous values are set as fallbacks
+    localStorage.setItem(
+      "userInfo",
+      JSON.stringify({
+        ...userInfo,
+        name: name || userInfo.name,
+        profilePic: profilePreviewUrl || userInfo.profilePic,
+        coverPic: coverPreviewUrl || userInfo.coverPic,
+      })
+    );
 
     // Small delay to ensure localStorage is written before redirect
     setTimeout(() => {

@@ -44,6 +44,7 @@ export const authOptions = {
       // Map DB fields onto the session
       if (userExist?.profilePic) session.user.profilePic = userExist.profilePic;
       if (userExist?.coverPic) session.user.coverPic = userExist.coverPic;
+      if (userExist?.name) session.user.name = userExist.name;
 
       return session;
     },

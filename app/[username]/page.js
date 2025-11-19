@@ -8,7 +8,8 @@ import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 
 const Username = () => {
-  // this is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
+  // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
+  // useParamas has change in Next.js 15 check docs for more info.
   const routeParams = useParams();
   const dispatch = useDispatch();
   const username =
