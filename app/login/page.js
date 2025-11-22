@@ -37,7 +37,7 @@ const Login = () => {
     if (session) {
       // used replace to prevent the user from going back to the login page using browser back button
       // .push will add the login page to the browser history, so user can go back
-      router.replace("/dashboard");
+      router.replace("/");
     }
   }, [session, router]);
 
@@ -55,7 +55,7 @@ const Login = () => {
       if (result?.error) {
         alert("Login failed: " + result.error);
       } else {
-        router.replace("/dashboard");
+        router.replace("/");
       }
     } catch (error) {
       alert("An error occurred during login");

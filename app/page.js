@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     <>
-      <div className="flex flex-col pt-8">
+      <div className="flex flex-col pt-8 w-full">
         {/* section 1 */}
         <div className="flex flex-col justify-center items-center h-[44vh] text-white gap-4">
           <span>
@@ -18,13 +18,19 @@ export default function Home() {
           </span>
           <div className="font-bold text-5xl">Buy me a coke! </div>
 
-          <div className="flex">
-            <button className="ml-4 bg-red-500 text-black px-4 py-2 rounded">
-              Start Here
-            </button>
-            <button className="ml-4 bg-red-500 text-black px-4 py-2 rounded">
-              Read More
-            </button>
+          <div className="flex w-1/2 justify-center mt-10 relative">
+            <input
+              type="text"
+              placeholder="Search for your creator you wish to support!"
+              className="rounded-full p-2 bg-white w-full text-black placeholder:text-black placeholder:italic text-center hover:bg-red-400"
+            />
+            <Image
+              src="/send.png"
+              alt="send-icon"
+              width={32}
+              height={32}
+              className="absolute right-5 top-1 cursor-pointer"
+            />
           </div>
         </div>
 
