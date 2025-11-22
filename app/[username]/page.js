@@ -7,6 +7,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 
+const HERO_HEIGHT = 480;
+const PROFILE_DIAMETER = 128;
+
 const Username = () => {
   // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
   // useParamas has change in Next.js 15 check docs for more info.
@@ -21,7 +24,8 @@ const Username = () => {
 
   const isFetch = useSelector((state) => state.user.fetch);
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+  const isSessionLoading = status === "loading";
 
   // states
   const [supporterName, setSupporterName] = useState("");
@@ -38,17 +42,20 @@ const Username = () => {
   const [profile, setProfile] = useState("/profilePic.png");
   const [cover, setCover] = useState("/coverImage.png");
 
-  const fetchUserInfo = useCallback(async (username) => {
-    const res = await fetchUpdatedUserInfo(username);
-    if (res) {
-      // tell the isFetch to disbable for the next time until the profile is updated again
-      dispatch(tellToFetchData());
-      setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
-      setCover(res.coverPic ? res.coverPic : "/coverImage.png");
-    } else {
-      return;
-    }
-  }, [dispatch]);
+  const fetchUserInfo = useCallback(
+    async (username) => {
+      const res = await fetchUpdatedUserInfo(username);
+      if (res) {
+        // tell the isFetch to disbable for the next time until the profile is updated again
+        dispatch(tellToFetchData());
+        setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
+        setCover(res.coverPic ? res.coverPic : "/coverImage.png");
+      } else {
+        return;
+      }
+    },
+    [dispatch]
+  );
 
   // This gets the latest info after user updates their profile
   useEffect(() => {
@@ -93,7 +100,7 @@ const Username = () => {
     }
   };
 
-  const getRecentPaymentInfo = async () => {
+  const getRecentPaymentInfo = useCallback(async () => {
     // GET requests shouldn't have a body. Send username as a query param instead.
     const res = await fetch(
       `/api/payment?username=${encodeURIComponent(username)}`,
@@ -107,13 +114,11 @@ const Username = () => {
 
     const data = await res.json();
     setPayData(Array.isArray(data) ? data : []);
-    // Ensure we always store an array to avoid runtime errors when using .map
-    setPayData(Array.isArray(data) ? data : []);
     // log the response data (not the state variable immediately after setState)
     console.log("Recent payment info:", data);
-  };
+  }, [username]);
 
-  const getStats = async () => {
+  const getStats = useCallback(async () => {
     const res = await fetch(
       `/api/payment/stats?username=${encodeURIComponent(username)}`
     );
@@ -125,57 +130,67 @@ const Username = () => {
     setUniqueSupporters(data?.uniqueSupporters || 0);
     setTopSupporters(data?.topSupporters || []);
     setTotalDonations(data?.count || 0);
-  };
+  }, [username]);
 
   useEffect(() => {
     getRecentPaymentInfo();
     getStats();
-  }, [username]);
+  }, [getRecentPaymentInfo, getStats]);
 
   return (
     <>
       <div className="flex flex-col items-center w-full mt-0 pt-0">
-        {status === "authenticated" && (
-          <div className="flex flex-col items-center relative w-full mt-0 pt-0">
-            <div className="cover w-full">
-              {cover ? (
-                // Width and Height attributes don't apply these. They just informt Next.js to optimize the image for this size
-                <Image
-                  src={cover}
-                  alt="cover page"
-                  width={1920}
-                  height={480}
-                  priority
-                  className="w-full h-[480px] object-cover block"
-                />
-              ) : (
-                <div className="w-full h-[480px] bg-gray-800 animate-pulse" />
-              )}
-            </div>
-            <div className="profilePic absolute bottom-[-140] flex flex-col text-white justify-center items-center gap-2">
-              {profile ? (
-                <Image
-                  src={profile}
-                  alt="profile pic"
-                  width={128}
-                  height={128}
-                  className="w-32 h-32 object-cover rounded-full"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-700 animate-pulse" />
-              )}
-              <span className="flex flex-col gap-2 items-center justify-center text-center">
-                <p>{username}</p>
-                <p>Created animated Web novels!</p>
-                <span className="flex gap-2 justify-center items-center">
-                  <p>{totalDonations} Donations .</p>
-                  <p> {uniqueSupporters} supporters .</p>
-                  <p> ${totalAmount / 100}/release</p>
-                </span>
-              </span>
-            </div>
+        <div
+          className="flex flex-col items-center relative w-full mt-0 pt-0"
+          style={{ minHeight: HERO_HEIGHT + PROFILE_DIAMETER }}
+        >
+          <div
+            className="cover relative w-full overflow-hidden rounded-b-2xl bg-gray-900/60"
+            style={{ minHeight: HERO_HEIGHT, height: HERO_HEIGHT }}
+            aria-busy={isSessionLoading}
+          >
+            {cover ? (
+              // Width and Height attributes don't apply these. They just inform Next.js to optimize the image for this size
+              <Image
+                src={cover}
+                alt="cover page"
+                width={1920}
+                height={HERO_HEIGHT}
+                priority
+                className="w-full h-full object-cover block"
+                sizes="100vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-800 animate-pulse" />
+            )}
           </div>
-        )}
+          <div className="profilePic absolute flex flex-col -bottom-8 text-white justify-center items-center gap-2">
+            {profile ? (
+              <Image
+                src={profile}
+                alt="profile pic"
+                width={PROFILE_DIAMETER}
+                height={PROFILE_DIAMETER}
+                className="w-32 h-32 object-cover rounded-full"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-700 animate-pulse" />
+            )}
+            <span className="flex flex-col gap-2 items-center justify-center text-center">
+              <p>{username}</p>
+              <p>
+                {isSessionLoading
+                  ? "Loading profile..."
+                  : "Created animated Web novels!"}
+              </p>
+              <span className="flex gap-2 justify-center items-center">
+                <p>{totalDonations} Donations .</p>
+                <p> {uniqueSupporters} supporters .</p>
+                <p> ${totalAmount / 100}/release</p>
+              </span>
+            </span>
+          </div>
+        </div>
 
         {/*  supporters and make payments */}
         <div className="flex max-[600px]:flex-col justify-center items-start gap-6 mt-44 mb-10 w-4/5 text-white">
