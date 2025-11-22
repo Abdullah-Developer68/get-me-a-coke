@@ -8,6 +8,7 @@ const AuthProvider = ({ children }) => {
   const { data: session, status } = useSession();
   const [userInfo, setuserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  console.log(session);
 
   // when ever a re-render happens the function is re-created with a new memory
   // address. If we know that we do not want a specific funtion to be created again

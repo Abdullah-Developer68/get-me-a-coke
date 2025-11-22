@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -34,37 +34,33 @@ const Username = () => {
   const [topSupporters, setTopSupporters] = useState([]);
   const [totalDonations, setTotalDonations] = useState(0);
   const [averageAmount, setAverageAmount] = useState(0);
-  // Do NOT read session.user during initial render; it may be undefined
-  const [profile, setProfile] = useState(null);
-  const [cover, setCover] = useState(null);
 
-  // Hydrate image URLs from session when available
-  useEffect(() => {
-    const u = session?.user;
-    if (!u) return;
-    // Prefer DB fields, then any legacy fields, then provider image
-    setProfile(u.profilePic ? u.profilePic : "/profilePic.png");
-    setCover(u.coverPic ? u.coverPic : "/coverImage.png");
-  }, [session]);
+  const [profile, setProfile] = useState("/profilePic.png");
+  const [cover, setCover] = useState("/coverImage.png");
 
-  const fetchUserInfo = async (username) => {
-    if (isFetch === true) {
-      console.log("Fetch data changed in username page: ", isFetch);
-      const res = await fetchUpdatedUserInfo(username);
-      if (res) {
-        // tell the isFetch to disbable for the next time until the profile is updated again
-        dispatch(tellToFetchData());
-        setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
-        setCover(res.coverPic ? res.coverPic : "/coverImage.png");
-      } else {
-        return;
-      }
+  const fetchUserInfo = useCallback(async (username) => {
+    const res = await fetchUpdatedUserInfo(username);
+    if (res) {
+      // tell the isFetch to disbable for the next time until the profile is updated again
+      dispatch(tellToFetchData());
+      setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
+      setCover(res.coverPic ? res.coverPic : "/coverImage.png");
+    } else {
+      return;
     }
-  };
+  }, [dispatch]);
 
+  // This gets the latest info after user updates their profile
+  useEffect(() => {
+    if (isFetch) {
+      fetchUserInfo(username);
+    }
+  }, [isFetch, username, fetchUserInfo]);
+
+  // This gets the user info on first load
   useEffect(() => {
     fetchUserInfo(username);
-  }, [isFetch, username]);
+  }, [username, fetchUserInfo]);
 
   // this sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {
@@ -281,7 +277,7 @@ const Username = () => {
               <button
                 disabled={isLoading || !amount}
                 onClick={() => startCheckout(Number(amount))}
-                className="w-full rounded-md bg-gradient-to-r from-gray-400 to-gray-600 text-black py-2 font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-md bg-linear-to-r from-gray-400 to-gray-600 text-black py-2 font-medium disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Processing..." : "Pay"}
               </button>

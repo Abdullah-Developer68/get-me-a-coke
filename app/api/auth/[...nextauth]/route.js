@@ -6,7 +6,9 @@ import dbConnect from "@db/dbConnect";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
+  // session is the object that hold the data of the current login
   session: { strategy: "jwt" },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GitHub({
       clientId: process.env.GITHUB_ID,
@@ -87,23 +89,51 @@ export const authOptions = {
 
       return false;
     },
-    async session({ session }) {
-      await dbConnect();
-      const userExist = await User.findOne({ email: session.user.email });
-
-      // Keep provider name intact; expose username as a separate field
-      if (userExist?.username) session.user.username = userExist.username;
-      // Map DB fields onto the session
-      if (userExist?.profilePic) session.user.profilePic = userExist.profilePic;
-      if (userExist?.coverPic) session.user.coverPic = userExist.coverPic;
-      if (userExist?.name) session.user.name = userExist.name;
-
+    // when useSession() is called in frontend, this session callback runs
+    async session({ session, token }) {
+      // No DB call - just read from JWT token (much faster!)
+      if (session?.user) {
+        session.user.username = token.username;
+        session.user.profilePic = token.profilePic;
+        session.user.coverPic = token.coverPic;
+        session.user.name = token.name;
+      }
       return session;
     },
+    // After successful sign in, redirect user to home page
     async redirect({ url, baseUrl }) {
       return baseUrl;
     },
-    async jwt({ token, user, account, profile, isNewUser }) {
+    async jwt({ token, user, account, trigger, session }) {
+      // This runs when user first signs in (user object is available)
+      if (user) {
+        // For GitHub sign-in, fetch user data from DB
+        if (account?.provider === "github") {
+          await dbConnect();
+          const dbUser = await User.findOne({ email: user.email });
+          token.sub = dbUser?._id.toString(); // Store user ID. This allows next auth to use the update function to update the token later
+          token.username = dbUser?.username || user.email.split("@")[0];
+          token.profilePic = dbUser?.profilePic;
+          token.coverPic = dbUser?.coverPic;
+          token.name = dbUser?.name || user.name;
+        }
+        // For credentials sign-in, user object already has all data
+        else {
+          token.sub = user.id; // Store user ID
+          token.username = user.username;
+          token.profilePic = user.profilePic;
+          token.coverPic = user.coverPic;
+          token.name = user.name;
+        }
+      }
+
+      // This part runs on update() calls, the updated values come through the session
+      if (trigger === "update" && session) {
+        token.name = session.name || token.name;
+        token.profilePic = session.profilePic || token.profilePic;
+        token.coverPic = session.coverPic || token.coverPic;
+      }
+
       return token;
     },
   },

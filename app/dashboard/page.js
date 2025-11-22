@@ -7,10 +7,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { useDispatch } from "react-redux";
+import { useSession } from "next-auth/react";
 
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { data: session, update } = useSession();
   // Auth context
   const { userInfo, isLoading } = useAuth();
 
@@ -151,10 +153,24 @@ export default function Dashboard() {
       JSON.stringify({
         ...userInfo,
         name: name || userInfo.name,
-        profilePic: profilePreviewUrl || userInfo.profilePic,
-        coverPic: coverPreviewUrl || userInfo.coverPic,
+        profilePic: res.profilePic || userInfo.profilePic,
+        coverPic: res.coverPic || userInfo.coverPic,
       })
     );
+
+    // update method updates the token so we need to handle these changes in the jwt callback and session will get the changes from the token
+    // IMPORTANT: Only pass the actual URLs from the server response, NOT data URLs (which are huge) they will exceed the maximum header size
+    // allowed by the browser and the request will fail and the session will not be updated
+    try {
+      await update({
+        name: name || userInfo.name,
+        profilePic: res.profilePic || userInfo.profilePic,
+        coverPic: res.coverPic || userInfo.coverPic,
+      });
+      console.log("Session updated successfully");
+    } catch (error) {
+      console.error("Failed to update session:", error);
+    }
 
     // Small delay to ensure localStorage is written before redirect
     setTimeout(() => {

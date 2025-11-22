@@ -103,6 +103,9 @@ export async function uploadUserInfoAction(formData) {
 
       return {
         ok: true,
+        profilePic,
+        coverPic,
+        name: n,
         user: {
           _id: String(_id),
           name: n,
@@ -135,6 +138,9 @@ export async function uploadUserInfoAction(formData) {
     console.log("User info updated:", { email: e });
     return {
       ok: true,
+      profilePic,
+      coverPic,
+      name: n,
       user: {
         _id: String(_id),
         name: n,
