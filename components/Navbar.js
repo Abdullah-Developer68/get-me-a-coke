@@ -9,6 +9,7 @@ const Navbar = () => {
   const { data: session } = useSession();
   const { userInfo, clearDataOnLogout, isLoading } = useAuth(); // Access context values
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Handle sign-out: Clear custom data first, then NextAuth sign-out
   const handleSignOut = () => {
@@ -18,124 +19,189 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-gray-700 flex justify-between items-center px-4 h-12">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Image
-            src="/logo.jpg"
-            alt="Logo"
-            width={40}
-            height={40}
-            className="rounded-full"
-            priority
-          />
-          <div className="logo font-bold">Get me a Coke</div>
-        </div>
+      <nav className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo Section */}
+            <Link
+              href="/"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <Image
+                src="/logo.jpg"
+                alt="Get me a Coke Logo"
+                width={40}
+                height={40}
+                className="rounded-full"
+                priority
+              />
+              <span className="text-xl font-bold text-gray-800 hidden sm:block">
+                Get me a Coke
+              </span>
+            </Link>
 
-        {session && !isLoading ? ( // Check session and loading state
-          <>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col items-center gap-3 relative">
-                <button
-                  id="dropdownDefaultButton"
-                  data-dropdown-toggle="dropdown"
-                  className="text-white bg-black px-4 py-2 hover:bg-white hover:text-black rounded-md cursor-pointer flex items-center gap-2 relative"
-                  type="button"
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      setShowDropdown(false);
-                    }, 300);
-                  }}
-                >
-                  Welcome {userInfo?.username || session.user.username}{" "}
-                  {/* Fallback to session if userInfo is null */}
-                  <svg
-                    className="w-2.5 h-2.5 ms-3"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 10 6"
+            {/* Desktop Navigation */}
+            {session && !isLoading ? (
+              <>
+                <div className="hidden md:flex items-center space-x-8">
+                  <Link
+                    href="/"
+                    className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
                   >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 4 4 4-4"
-                    />
+                    Home
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href={`/${userInfo?.username || session.user.username}`}
+                    className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+                  >
+                    Your Page
+                  </Link>
+
+                  {/* User Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      onBlur={() => {
+                        setTimeout(() => setShowDropdown(false), 200);
+                      }}
+                      className="flex items-center gap-2 text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 pl-6"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      <span>{userInfo?.username || session.user.username}</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          showDropdown ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {showDropdown && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                        <button
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setShowDropdown(false);
+                            handleSignOut();
+                          }}
+                          className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    {showMobileMenu ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16m-7 6h7"
+                      />
+                    )}
                   </svg>
                 </button>
+              </>
+            ) : (
+              <Link href="/login">
+                <button className="bg-black text-white px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                  Login
+                </button>
+              </Link>
+            )}
+          </div>
+        </div>
 
-                <div
-                  id="dropdown"
-                  className={`${
-                    showDropdown
-                      ? "z-50 absolute top-12 right-0 bg-gray-600 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-                      : "hidden"
-                  }`}
-                >
-                  <ul
-                    className="py-2 text-sm text-black dark:text-gray-200"
-                    aria-labelledby="dropdownDefaultButton"
-                  >
-                    <li>
-                      <Link
-                        href={`/`}
-                        className="block px-4 py-2 hover:bg-gray-100 max-w-4/5 rounded-md ml-4 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={() => {
-                          setShowDropdown(false);
-                        }}
-                      >
-                        Home
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href={`/dashboard`}
-                        className="block px-4 py-2 hover:bg-gray-100 max-w-4/5 rounded-md ml-4 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={() => {
-                          setShowDropdown(false);
-                        }}
-                      >
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href={`/${userInfo?.username || session.user.username}`} // Use userInfo if available
-                        className="block px-4 py-2 hover:bg-gray-100 max-w-4/5 rounded-md ml-4 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={() => {
-                          setShowDropdown(false);
-                        }}
-                      >
-                        Your Page
-                      </Link>
-                    </li>
-
-                    <li className="cursor-pointer">
-                      <Link
-                        href={`/`}
-                        className="block px-4 py-2 hover:bg-gray-100 max-w-4/5 rounded-md ml-4 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
-                        onClick={() => {
-                          setShowDropdown(false);
-                          handleSignOut(); // Use the new handler
-                        }}
-                      >
-                        Sign out
-                      </Link>
-                    </li>
-                  </ul>
+        {/* Mobile Menu */}
+        {session && !isLoading && showMobileMenu && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/"
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href={`/${userInfo?.username || session.user.username}`}
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              >
+                Your Page
+              </Link>
+              <div className="border-t border-gray-200 pt-2 mt-2">
+                <div className="px-3 py-2 text-sm font-medium text-gray-500">
+                  {userInfo?.username || session.user.username}
                 </div>
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    handleSignOut();
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
             </div>
-          </>
-        ) : (
-          <Link href="/login">
-            <button className="bg-gray-500 px-3 py-1 rounded-md cursor-pointer">
-              Login
-            </button>
-          </Link>
+          </div>
         )}
       </nav>
     </>
@@ -143,17 +209,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-// Sequence:
-
-// mousedown → when you press the button
-
-// mouseup → when you release
-
-// click → only if press + release happened on the same element
-
-// Core problem:
-// The dropdown was positioned without a `relative` parent and had low stacking, so it was either hidden under other elements or blurred before clicks registered — making links unclickable.
-
-// Solution:
-// Make the parent `relative`, fix positioning with `absolute top-12 right-0`, raise `z-index`, and guard against premature blur with `onMouseDown`.
