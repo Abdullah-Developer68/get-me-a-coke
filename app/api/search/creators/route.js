@@ -23,7 +23,7 @@ export async function GET(request) {
             query: query,
             path: "username",
             fuzzy: {
-              maxEdits: 1, // Allows 1 typo
+              maxEdits: 2, // Allows 2 typo
               prefixLength: 2, // First 2 characters must match exactly
             },
             tokenOrder: "any",
