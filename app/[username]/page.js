@@ -60,6 +60,7 @@ const Username = () => {
   // This gets the latest info after user updates their profile
   useEffect(() => {
     if (isFetch) {
+      console.log("The user data is getting fetched!");
       fetchUserInfo(username);
     }
   }, [isFetch, username, fetchUserInfo]);

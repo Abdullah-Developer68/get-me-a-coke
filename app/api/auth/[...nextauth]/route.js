@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/models/User";
-import dbConnect from "@db/dbConnect";
+import dbConnect from "@/db/dbConnect";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
