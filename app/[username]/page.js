@@ -40,12 +40,17 @@ const Username = () => {
   const [totalDonations, setTotalDonations] = useState(0);
   const [averageAmount, setAverageAmount] = useState(0);
 
-  const [profile, setProfile] = useState(
-    localStorage.getItem("profilePic") || "/profilePic.png"
-  );
-  const [cover, setCover] = useState(
-    localStorage.getItem("coverPic") || "/coverImage.png"
-  );
+  const [profile, setProfile] = useState("/profilePic.png");
+  const [cover, setCover] = useState("/coverImage.png");
+
+  // Initialize localStorage values on client side only
+  useEffect(() => {
+    const cachedProfile = localStorage.getItem("profilePic");
+    const cachedCover = localStorage.getItem("coverPic");
+
+    if (cachedProfile) setProfile(cachedProfile);
+    if (cachedCover) setCover(cachedCover);
+  }, []);
 
   const fetchUserInfo = async (username) => {
     const res = await fetchUpdatedUserInfo(username);
