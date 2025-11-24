@@ -4,15 +4,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import useAuth from "@/hooks/useAuth"; // Import your custom hook
+import { tellToFetchData } from "@/redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 const Navbar = () => {
+  // Session data from NextAuth
   const { data: session } = useSession();
+  // Redux hook
+  const dispatch = useDispatch();
+  // Custom auth context
   const { userInfo, clearDataOnLogout, isLoading } = useAuth(); // Access context values
+  // States
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Handle sign-out: Clear custom data first, then NextAuth sign-out
   const handleSignOut = () => {
+    dispatch(tellToFetchData(true)); // Reset fetch state on logout
     clearDataOnLogout(); // Clear your custom auth data
     signOut(); // Then sign out from NextAuth
   };
