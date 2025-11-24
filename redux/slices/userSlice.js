@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  fetch: true, // after the profile has been updated the data needs to be reloaded in the user page
+  fetch: true,
 };
 
 const userSlice = createSlice({
@@ -12,7 +12,8 @@ const userSlice = createSlice({
     // Reducer function (action creator 'fetchPhotos etc' is auto-generated)
     tellToFetchData: (state, action) => {
       // after the profile has been updated the data needs to be reloaded in the user page
-      state.fetch = !state.fetch;
+      console.log("is Fetch is now:" + action.payload);
+      state.fetch = action.payload;
     },
   },
 });

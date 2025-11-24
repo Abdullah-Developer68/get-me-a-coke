@@ -120,6 +120,7 @@ export default function Dashboard() {
         edits?.coverPic || userInfo.coverPic || "/coverImage.png"
       );
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]); // Run when userInfo changes
 
   if (isLoading) {
@@ -146,7 +147,7 @@ export default function Dashboard() {
       return;
     }
 
-    dispatch(tellToFetchData()); // Tells the user's page to fetch updated data
+    dispatch(tellToFetchData(true)); // Tells the user's page to fetch updated data
     // Update userInfo with the latest changes and the previous values are set as fallbacks
     localStorage.setItem(
       "userInfo",

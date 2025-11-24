@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -39,36 +40,35 @@ const Username = () => {
   const [totalDonations, setTotalDonations] = useState(0);
   const [averageAmount, setAverageAmount] = useState(0);
 
-  const [profile, setProfile] = useState("/profilePic.png");
-  const [cover, setCover] = useState("/coverImage.png");
-
-  const fetchUserInfo = useCallback(
-    async (username) => {
-      const res = await fetchUpdatedUserInfo(username);
-      if (res) {
-        // tell the isFetch to disbable for the next time until the profile is updated again
-        dispatch(tellToFetchData());
-        setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
-        setCover(res.coverPic ? res.coverPic : "/coverImage.png");
-      } else {
-        return;
-      }
-    },
-    [dispatch]
+  const [profile, setProfile] = useState(
+    localStorage.getItem("profilePic") || "/profilePic.png"
   );
+  const [cover, setCover] = useState(
+    localStorage.getItem("coverPic") || "/coverImage.png"
+  );
+
+  const fetchUserInfo = async (username) => {
+    const res = await fetchUpdatedUserInfo(username);
+    if (res) {
+      // tell the isFetch to disbable for the next time until the profile is updated again
+      dispatch(tellToFetchData(false));
+      setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
+      setCover(res.coverPic ? res.coverPic : "/coverImage.png");
+      // Save data on localStorage for later use without extra fetches
+      localStorage.setItem("profilePic", res.profilePic);
+      localStorage.setItem("coverPic", res.coverPic);
+    } else {
+      return;
+    }
+  };
 
   // This gets the latest info after user updates their profile
   useEffect(() => {
     if (isFetch) {
-      console.log("The user data is getting fetched!");
+      console.log("The user data is getting fetched");
       fetchUserInfo(username);
     }
-  }, [isFetch, username, fetchUserInfo]);
-
-  // This gets the user info on first load
-  useEffect(() => {
-    fetchUserInfo(username);
-  }, [username, fetchUserInfo]);
+  }, [isFetch, username]);
 
   // this sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {

@@ -8,14 +8,13 @@ const AuthProvider = ({ children }) => {
   const { data: session, status } = useSession();
   const [userInfo, setuserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  console.log(session);
+  // console.log(session);
 
   // when ever a re-render happens the function is re-created with a new memory
   // address. If we know that we do not want a specific funtion to be created again
   // on every re-render we can freeze it using useCallback on recreate with only
   // when specific dependencies change. Here, since there are no dependencies the function will be created only once.
   const storeDataOnLogin = useCallback((userData) => {
-    console.log(userData);
     if (!userData) {
       setuserInfo(null);
       localStorage.removeItem("userInfo");
