@@ -8,9 +8,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 
-const HERO_HEIGHT = 480;
-const PROFILE_DIAMETER = 128;
-
 const Username = () => {
   // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
   // useParamas has change in Next.js 15 check docs for more info.
@@ -146,13 +143,9 @@ const Username = () => {
   return (
     <>
       <div className="flex flex-col items-center w-full mt-0 pt-0">
-        <div
-          className="flex flex-col items-center relative w-full mt-0 pt-0"
-          style={{ minHeight: HERO_HEIGHT + PROFILE_DIAMETER }}
-        >
+        <div className="flex flex-col items-center relative w-full mt-0 pt-0 min-h-[608px]">
           <div
-            className="cover relative w-full overflow-hidden rounded-b-2xl bg-gray-900/60"
-            style={{ minHeight: HERO_HEIGHT, height: HERO_HEIGHT }}
+            className="cover relative w-full overflow-hidden rounded-b-2xl bg-gray-900/60 min-h-[480px] h-[480px]"
             aria-busy={isSessionLoading}
           >
             {cover ? (
@@ -161,7 +154,7 @@ const Username = () => {
                 src={cover}
                 alt="cover page"
                 width={1920}
-                height={HERO_HEIGHT}
+                height={480}
                 priority
                 className="w-full h-full object-cover block"
                 sizes="100vw"
@@ -175,8 +168,8 @@ const Username = () => {
               <Image
                 src={profile}
                 alt="profile pic"
-                width={PROFILE_DIAMETER}
-                height={PROFILE_DIAMETER}
+                width={128}
+                height={128}
                 className="w-32 h-32 object-cover rounded-full"
               />
             ) : (
