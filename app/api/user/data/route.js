@@ -25,9 +25,9 @@ export const GET = async (request) => {
     // Return the user data directly (not wrapped in user object)
     return NextResponse.json(
       {
-        // return only specific fields
-        coverPic: user.coverPic,
-        profilePic: user.profilePic,
+        // return only specific fields, with defaults for missing images
+        coverPic: user.coverPic || "/coverImage.png",
+        profilePic: user.profilePic || "/profilePic.png",
         name: user.name,
         username: user.username,
       },

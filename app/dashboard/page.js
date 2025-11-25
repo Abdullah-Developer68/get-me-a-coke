@@ -327,7 +327,7 @@ export default function Dashboard() {
                     <div className="flex flex-col items-center gap-4">
                       <button
                         type="submit"
-                        className="rounded-md bg-green-500 px-8 py-3 text-lg font-semibold text-black transition-all hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                        className="rounded-md bg-white px-8 py-3 text-lg font-semibold text-black cursor-pointer"
                       >
                         Update Profile
                       </button>

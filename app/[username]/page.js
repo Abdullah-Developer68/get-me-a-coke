@@ -46,8 +46,17 @@ const Username = () => {
     const cachedProfile = localStorage.getItem("profilePic");
     const cachedCover = localStorage.getItem("coverPic");
 
-    if (cachedProfile) setProfile(cachedProfile);
-    if (cachedCover) setCover(cachedCover);
+    // Only use cached values if they are valid (not null, undefined, or empty strings)
+    if (
+      cachedProfile &&
+      cachedProfile !== "null" &&
+      cachedProfile !== "undefined"
+    ) {
+      setProfile(cachedProfile);
+    }
+    if (cachedCover && cachedCover !== "null" && cachedCover !== "undefined") {
+      setCover(cachedCover);
+    }
   }, []);
 
   const fetchUserInfo = async (username) => {
@@ -55,11 +64,13 @@ const Username = () => {
     if (res) {
       // tell the isFetch to disbable for the next time until the profile is updated again
       dispatch(tellToFetchData(false));
-      setProfile(res.profilePic ? res.profilePic : "/profilePic.png");
-      setCover(res.coverPic ? res.coverPic : "/coverImage.png");
+      const profilePic = res.profilePic || "/profilePic.png";
+      const coverPic = res.coverPic || "/coverImage.png";
+      setProfile(profilePic);
+      setCover(coverPic);
       // Save data on localStorage for later use without extra fetches
-      localStorage.setItem("profilePic", res.profilePic);
-      localStorage.setItem("coverPic", res.coverPic);
+      localStorage.setItem("profilePic", profilePic);
+      localStorage.setItem("coverPic", coverPic);
     } else {
       return;
     }

@@ -10,7 +10,11 @@ const userSchema = new Schema(
     coverPic: String,
     status: String,
     otp: String,
-    signMethod: { type: String, enum: ["github", "local"], required: true },
+    signMethod: {
+      type: String,
+      enum: ["github", "google", "local"],
+      required: true,
+    },
     password: {
       type: String,
       required: function () {
