@@ -60,7 +60,7 @@ export async function uploadUserInfoAction(formData) {
 
     const DEFAULTS = {
       profilePic: "/profilePic.png",
-      coverPic: "/coverImage.png",
+      coverPic: "/coverImage.jpg",
     };
 
     // Upload in parallel (if provided). If user explicitly removed, do not upload; just set default

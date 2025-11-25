@@ -26,7 +26,7 @@ export const GET = async (request) => {
     return NextResponse.json(
       {
         // return only specific fields, with defaults for missing images
-        coverPic: user.coverPic || "/coverImage.png",
+        coverPic: user.coverPic || "/coverImage.jpg",
         profilePic: user.profilePic || "/profilePic.png",
         name: user.name,
         username: user.username,

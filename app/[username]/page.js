@@ -39,7 +39,7 @@ const Username = () => {
   const [averageAmount, setAverageAmount] = useState(0);
 
   const [profile, setProfile] = useState("/profilePic.png");
-  const [cover, setCover] = useState("/coverImage.png");
+  const [cover, setCover] = useState("/coverImage.jpg");
 
   // Initialize localStorage values on client side only
   useEffect(() => {
@@ -65,7 +65,7 @@ const Username = () => {
       // tell the isFetch to disbable for the next time until the profile is updated again
       dispatch(tellToFetchData(false));
       const profilePic = res.profilePic || "/profilePic.png";
-      const coverPic = res.coverPic || "/coverImage.png";
+      const coverPic = res.coverPic || "/coverImage.jpg";
       setProfile(profilePic);
       setCover(coverPic);
       // Save data on localStorage for later use without extra fetches

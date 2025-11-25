@@ -76,14 +76,14 @@ export default function Dashboard() {
         JSON.stringify({ ...edits, profilePic: "/profilePic.png" })
       );
     } else if (type === "cover") {
-      setCoverPreviewUrl("/coverImage.png");
+      setCoverPreviewUrl("/coverImage.jpg");
       setCoverRemoved(true); // Set flag when image is removed
       document.getElementById("cover").value = "";
       // update edits
-      setEdits((prev) => ({ ...prev, coverPic: "/coverImage.png" }));
+      setEdits((prev) => ({ ...prev, coverPic: "/coverImage.jpg" }));
       localStorage.setItem(
         "edits",
-        JSON.stringify({ ...edits, coverPic: "/coverImage.png" })
+        JSON.stringify({ ...edits, coverPic: "/coverImage.jpg" })
       );
     }
   };
@@ -118,7 +118,7 @@ export default function Dashboard() {
         edits?.profilePic || userInfo.profilePic || "/profilePic.png"
       );
       setCoverPreviewUrl(
-        edits?.coverPic || userInfo.coverPic || "/coverImage.png"
+        edits?.coverPic || userInfo.coverPic || "/coverImage.jpg"
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -294,7 +294,7 @@ export default function Dashboard() {
                             onChange={filePreview}
                           />
                           {coverPreviewUrl &&
-                            coverPreviewUrl !== "/coverImage.png" &&
+                            coverPreviewUrl !== "/coverImage.jpg" &&
                             coverPreviewUrl !== "" && (
                               <button
                                 type="button"
