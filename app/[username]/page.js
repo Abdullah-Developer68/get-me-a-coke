@@ -82,7 +82,12 @@ const Username = () => {
       console.log("The user data is getting fetched");
       fetchUserInfo(username);
     }
-  }, [isFetch, username]);
+  }, [isFetch]);
+
+  // This gets the user info whenever the username in the url changes
+  useEffect(() => {
+    fetchUserInfo(username);
+  }, [username]);
 
   // this sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {
