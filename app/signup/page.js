@@ -133,7 +133,7 @@ const Signup = () => {
               Enter your email below to create a new account
             </CardDescription>
             <CardAction>
-              <Button variant="link" className="text-white">
+              <Button variant="link" className="text-white cursor-pointer">
                 <Link href="/login">Login</Link>
               </Button>
             </CardAction>
@@ -156,7 +156,7 @@ const Signup = () => {
                     />
                     <Button
                       variant="link"
-                      className="text-black bg-white w-24"
+                      className="text-black bg-white w-24 cursor-pointer"
                       onClick={(e) => sendOTP(e)}
                     >
                       {otpButton}
