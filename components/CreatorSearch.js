@@ -92,9 +92,11 @@ export default function CreatorSearch() {
   };
 
   const handleSelectCreator = (username) => {
-    setSearchTerm(username);
     setShowDropdown(false);
     setShowSuggestions(false);
+    // Reset the cached user images to defaults before navigating for better UX
+    localStorage.setItem("profilePic", "/profilePic.png");
+    localStorage.setItem("coverPic", "/coverImage.jpg");
     router.push(`/${username}`);
   };
 
