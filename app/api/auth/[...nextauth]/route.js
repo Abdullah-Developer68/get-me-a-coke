@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/models/User";
 import dbConnect from "@/db/dbConnect";
@@ -86,6 +87,27 @@ export const authOptions = {
         return true;
       }
 
+      if (account.provider === "google") {
+        await dbConnect();
+        // Check if the user already exists in the database
+        const currentUser = await User.findOne({ email: user?.email });
+
+        if (!currentUser) {
+          // Create a new user
+          const newUser = await User.create({
+            email: user.email,
+            // fallback to email prefix
+            username: user.email.split("@")[0],
+            name: profile.name,
+            profilePic: profile.picture,
+            signMethod: "google",
+          });
+
+          console.log("New User has been created as:" + newUser);
+        }
+        return true;
+      }
+
       if (account.provider === "credentials") {
         // Credentials provider - user is already validated in authorize()
         return true;
@@ -111,13 +133,13 @@ export const authOptions = {
     async jwt({ token, user, account, trigger, session }) {
       // This runs when user first signs in (user object is available)
       if (user) {
-        // For GitHub sign-in, fetch user data from DB
-        if (account?.provider === "github") {
+        // For GitHub or Google sign-in, fetch user data from DB
+        if (account?.provider === "github" || account?.provider === "google") {
           await dbConnect();
           const dbUser = await User.findOne({ email: user.email });
           token.sub = dbUser?._id.toString(); // Store user ID. This allows next auth to use the update function to update the token later
           token.username = dbUser?.username || user.email.split("@")[0];
-          token.profilePic = dbUser?.profilePic;
+          token.profilePic = dbUser?.profilePic || user.image;
           token.coverPic = dbUser?.coverPic;
           token.name = dbUser?.name || user.name;
         }
