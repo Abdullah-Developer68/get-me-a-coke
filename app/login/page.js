@@ -45,6 +45,7 @@ const Login = () => {
   const handleCredentialsLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    toast("Logging in...");
 
     try {
       const result = await signIn("credentials", {
@@ -54,12 +55,13 @@ const Login = () => {
       });
 
       if (result?.error) {
-        alert("Login failed: " + result.error);
+        toast.error("Invalid email or password");
       } else {
+        toast.success("Login successful");
         router.replace("/");
       }
     } catch (error) {
-      alert("An error occurred during login");
+      toast.error("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
