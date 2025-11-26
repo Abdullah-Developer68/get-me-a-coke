@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const Signup = () => {
   // router
@@ -40,6 +41,8 @@ const Signup = () => {
     // prevent default behaviour
     e.preventDefault();
     // verify email exists
+    toast("Sending OTP...");
+
     if (!receiverEmail) {
       alert("Please enter your email first");
       return;
@@ -56,11 +59,11 @@ const Signup = () => {
     });
     // handle response
     if (res.ok) {
-      alert("OTP has been sent");
+      toast.success("OTP sent to your email!");
       setOtpButton("Resend OTP");
       setShowOtpBox(true);
     } else {
-      alert("Error sending OTP");
+      toast.error("Error sending OTP");
       setOtpButton("Resend OTP");
     }
   };

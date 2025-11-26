@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const Login = () => {
   const { data: session } = useSession();
@@ -127,7 +128,10 @@ const Login = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => signIn("github")}
+                onClick={() => {
+                  toast("Initiating GitHub login...");
+                  signIn("github");
+                }}
               >
                 Login with Github
               </Button>
@@ -143,7 +147,10 @@ const Login = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => signIn("google")}
+                onClick={() => {
+                  toast("Initiating Google login...");
+                  signIn("google");
+                }}
               >
                 Login with Google
               </Button>
