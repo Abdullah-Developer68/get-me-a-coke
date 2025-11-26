@@ -9,6 +9,7 @@ import { tellToFetchData } from "@/redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { useSession } from "next-auth/react";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -134,6 +135,7 @@ export default function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    toast("Updating profile...");
     const formData = new FormData(e.target);
 
     // Debug: Log FormData entries
@@ -173,7 +175,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Failed to update session:", error);
     }
-
+    toast.success("Profile updated successfully");
     // Small delay to ensure localStorage is written before redirect
     setTimeout(() => {
       router.push(`/${userInfo.username}`);
