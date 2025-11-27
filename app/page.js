@@ -2,8 +2,10 @@
 import Image from "next/image";
 import CreatorSearch from "@/components/CreatorSearch";
 import useAuth from "@/hooks/useAuth";
+import { useEffect } from "react";
+
 export default function Home() {
-  const { userInfo, isLoading } = useAuth();
+  const { userInfo } = useAuth();
 
   useEffect(() => {
     if (
