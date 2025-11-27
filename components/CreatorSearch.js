@@ -266,7 +266,7 @@ export default function CreatorSearch() {
       {/* Suggestions Dropdown - shown when input is focused but empty */}
       {showSuggestions && !showDropdown && (
         <div className="absolute top-14 w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200">
-          <div className="p-2 bg-gradient-to-r from-red-50 to-orange-50 border-b text-xs text-gray-600 font-semibold flex items-center gap-2">
+          <div className="p-2 bg-linear-to-r from-red-50 to-orange-50 border-b text-xs text-gray-600 font-semibold flex items-center gap-2">
             <svg
               className="w-4 h-4 text-red-400"
               fill="currentColor"
