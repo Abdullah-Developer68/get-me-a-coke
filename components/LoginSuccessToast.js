@@ -1,9 +1,10 @@
 "use client";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { toast } from "sonner";
 
-const LoginSuccessToast = () => {
+const LoginSuccessToastContent = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -18,5 +19,11 @@ const LoginSuccessToast = () => {
 
   return null; // This component doesn't render anything
 };
+
+const LoginSuccessToast = () => (
+  <Suspense fallback={null}>
+    <LoginSuccessToastContent />
+  </Suspense>
+);
 
 export default LoginSuccessToast;
