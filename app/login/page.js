@@ -68,15 +68,15 @@ const Login = () => {
   };
 
   const githubLogin = () => {
+    localStorage.setItem("githubLogin", "true");
     toast("Logging you in ...");
     signIn("github");
-    localStorage.setItem("githubLogin", "true");
   };
 
   const googleLogin = () => {
+    localStorage.setItem("googleLogin", "true");
     toast("Logging you in ...");
     signIn("google");
-    localStorage.setItem("googleLogin", "true");
   };
 
   return (
