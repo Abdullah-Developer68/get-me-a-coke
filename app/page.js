@@ -3,6 +3,7 @@ import Image from "next/image";
 import CreatorSearch from "@/components/CreatorSearch";
 import useAuth from "@/hooks/useAuth";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const { userInfo } = useAuth();
