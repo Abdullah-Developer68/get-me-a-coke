@@ -67,6 +67,18 @@ const Login = () => {
     }
   };
 
+  const githubLogin = () => {
+    toast("Logging you in ...");
+    signIn("github");
+    localStorage.setItem("githubLogin", "true");
+  };
+
+  const googleLogin = () => {
+    toast("Logging you in ...");
+    signIn("google");
+    localStorage.setItem("googleLogin", "true");
+  };
+
   return (
     <>
       <div className="flex items-center justify-center min-h-screen">
@@ -130,10 +142,7 @@ const Login = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => {
-                  toast("Sigining in ...");
-                  signIn("github");
-                }}
+                onClick={githubLogin}
               >
                 Login with Github
               </Button>
@@ -149,10 +158,7 @@ const Login = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => {
-                  toast("Signing in ...");
-                  signIn("google");
-                }}
+                onClick={googleLogin}
               >
                 Login with Google
               </Button>

@@ -129,13 +129,13 @@ const Signup = () => {
   const githubSignUp = () => {
     toast("Sigining you in ...");
     signIn("github");
-    localStorage.setItem("githubLogin", true);
+    localStorage.setItem("githubLogin", "true");
   };
 
   const googleSignUp = () => {
     toast("Sigining you in ...");
     signIn("google");
-    localStorage.setItem("googleLogin", true);
+    localStorage.setItem("googleLogin", "true");
   };
   return (
     <>
