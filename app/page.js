@@ -1,18 +1,18 @@
 import Image from "next/image";
 import CreatorSearch from "@/components/CreatorSearch";
-import { useSession } from "next-auth/react";
+import useAuth from "@/hooks/useAuth";
 export default function Home() {
-  const { session } = useSession();
+  const { userInfo, isLoading } = useAuth();
 
   useEffect(() => {
     if (
-      session &&
+      userInfo &&
       localStorage.getItem("googleLogin") === true &&
       localStorage.getItem("githubLogin") === true
     ) {
       toast.success("You have successfully logged in ...");
     }
-  }, [session]);
+  }, [userInfo]);
 
   return (
     <>

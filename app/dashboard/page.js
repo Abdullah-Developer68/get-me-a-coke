@@ -14,7 +14,7 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { data: session, update } = useSession();
+  const { update } = useSession();
   // Auth context
   const { userInfo, isLoading } = useAuth();
 
@@ -171,7 +171,6 @@ export default function Dashboard() {
         profilePic: res.profilePic || userInfo.profilePic,
         coverPic: res.coverPic || userInfo.coverPic,
       });
-      console.log("Session updated successfully");
     } catch (error) {
       console.error("Failed to update session:", error);
     }
