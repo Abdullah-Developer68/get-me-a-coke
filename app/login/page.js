@@ -131,8 +131,8 @@ const Login = () => {
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
                 onClick={() => {
-                  toast("Initiating GitHub login...");
-                  signIn("github");
+                  toast("Sigining in ...");
+                  signIn("github", { callbackUrl: "/?login=success" });
                 }}
               >
                 Login with Github
@@ -150,8 +150,8 @@ const Login = () => {
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
                 onClick={() => {
-                  toast("Initiating Google login...");
-                  signIn("google");
+                  toast("Signing in ...");
+                  signIn("google", { callbackUrl: "/?login=success" });
                 }}
               >
                 Login with Google

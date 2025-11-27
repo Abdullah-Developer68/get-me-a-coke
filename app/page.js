@@ -1,9 +1,11 @@
 import Image from "next/image";
 import CreatorSearch from "@/components/CreatorSearch";
+import LoginSuccessToast from "@/components/LoginSuccessToast";
 
 export default function Home() {
   return (
     <>
+      <LoginSuccessToast />
       <div className="flex flex-col pt-4 md:pt-8 w-full px-4">
         {/* section 1 */}
         <div className="flex flex-col justify-center items-center min-h-[44vh] text-white gap-3 md:gap-4 pb-8">
