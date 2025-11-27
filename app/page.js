@@ -15,6 +15,7 @@ export default function Home() {
     ) {
       toast.success("You have successfully logged in ...");
       localStorage.setItem("googleLogin", "false");
+      localStorage.setItem("githubLogin", "false");
     }
   }, [userInfo]);
 
