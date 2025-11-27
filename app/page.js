@@ -1,11 +1,21 @@
 import Image from "next/image";
 import CreatorSearch from "@/components/CreatorSearch";
-import LoginSuccessToast from "@/components/LoginSuccessToast";
-
+import { useSession } from "next-auth/react";
 export default function Home() {
+  const { session } = useSession();
+
+  useEffect(() => {
+    if (
+      session &&
+      localStorage.getItem("googleLogin") === true &&
+      localStorage.getItem("githubLogin") === true
+    ) {
+      toast.success("You have successfully logged in ...");
+    }
+  }, [session]);
+
   return (
     <>
-      <LoginSuccessToast />
       <div className="flex flex-col pt-4 md:pt-8 w-full px-4">
         {/* section 1 */}
         <div className="flex flex-col justify-center items-center min-h-[44vh] text-white gap-3 md:gap-4 pb-8">

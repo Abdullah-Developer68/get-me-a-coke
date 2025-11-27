@@ -126,6 +126,17 @@ const Signup = () => {
     }
   };
 
+  const githubSignUp = () => {
+    toast("Sigining you in ...");
+    signIn("github");
+    localStorage.setItem("githubLogin", true);
+  };
+
+  const googleSignUp = () => {
+    toast("Sigining you in ...");
+    signIn("google");
+    localStorage.setItem("googleLogin", true);
+  };
   return (
     <>
       <div className="flex items-center justify-center min-h-screen">
@@ -246,7 +257,7 @@ const Signup = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => signIn("github")}
+                onClick={githubSignUp}
               >
                 Sign up with Github
               </Button>
@@ -262,7 +273,7 @@ const Signup = () => {
               <Button
                 variant="outline"
                 className="w-full rounded-md cursor-pointer"
-                onClick={() => signIn("google")}
+                onClick={googleSignUp}
               >
                 Sign up with Google
               </Button>

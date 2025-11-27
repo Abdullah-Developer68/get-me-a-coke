@@ -132,7 +132,7 @@ const Login = () => {
                 className="w-full rounded-md cursor-pointer"
                 onClick={() => {
                   toast("Sigining in ...");
-                  signIn("github", { callbackUrl: "/?login=success" });
+                  signIn("github");
                 }}
               >
                 Login with Github
@@ -151,7 +151,7 @@ const Login = () => {
                 className="w-full rounded-md cursor-pointer"
                 onClick={() => {
                   toast("Signing in ...");
-                  signIn("google", { callbackUrl: "/?login=success" });
+                  signIn("google");
                 }}
               >
                 Login with Google
