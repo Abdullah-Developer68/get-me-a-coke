@@ -127,15 +127,15 @@ const Signup = () => {
   };
 
   const githubSignUp = () => {
-    toast("Sigining you in ...");
-    signIn("github");
     localStorage.setItem("githubLogin", "true");
+    toast("Signing you in ...");
+    signIn("github");
   };
 
   const googleSignUp = () => {
-    toast("Sigining you in ...");
-    signIn("google");
     localStorage.setItem("googleLogin", "true");
+    toast("Signing you in ...");
+    signIn("google");
   };
   return (
     <>

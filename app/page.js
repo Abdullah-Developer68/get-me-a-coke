@@ -10,8 +10,9 @@ export default function Home() {
 
   useEffect(() => {
     if (
-      (userInfo && localStorage.getItem("googleLogin") === "true") ||
-      localStorage.getItem("githubLogin") === "true"
+      userInfo &&
+      (localStorage.getItem("googleLogin") === "true" ||
+        localStorage.getItem("githubLogin") === "true")
     ) {
       toast.success("You have successfully logged in ...");
       localStorage.setItem("googleLogin", "false");
