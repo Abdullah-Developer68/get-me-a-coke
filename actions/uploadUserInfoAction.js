@@ -48,6 +48,7 @@ export async function uploadUserInfoAction(formData) {
     // Flags from the form to signal explicit removal of images
     const profileRemoved = formData.get("profileRemoved") === "true";
     const coverRemoved = formData.get("coverRemoved") === "true";
+    const tagline = formData.get("tagline")?.toString() || null;
 
     if (!email) {
       return { ok: false, error: "Not authenticated" };
@@ -82,6 +83,9 @@ export async function uploadUserInfoAction(formData) {
     } else if (profileRemoved) {
       update.profilePic = DEFAULTS.profilePic;
     }
+    if (tagline) {
+      update.tagline = tagline;
+    }
 
     if (coverUpload?.secure_url) {
       update.coverPic = coverUpload.secure_url; // schema fields: coverPic
@@ -92,6 +96,7 @@ export async function uploadUserInfoAction(formData) {
     // If nothing to update, return current user (as plain object)
     if (Object.keys(update).length === 0) {
       const safe = userExists.toObject ? userExists.toObject() : userExists;
+
       const {
         _id,
         name: n,
@@ -99,6 +104,7 @@ export async function uploadUserInfoAction(formData) {
         profilePic,
         coverPic,
         username,
+        tagline: savedTagline, // This is an alias for destructing and it is the same as safe.tagline
       } = safe || {};
 
       return {
@@ -106,6 +112,7 @@ export async function uploadUserInfoAction(formData) {
         profilePic,
         coverPic,
         name: n,
+        tagline: savedTagline,
         user: {
           _id: String(_id),
           name: n,
@@ -113,6 +120,7 @@ export async function uploadUserInfoAction(formData) {
           profilePic,
           coverPic,
           username,
+          tagline: savedTagline,
         },
       };
     }
@@ -134,6 +142,7 @@ export async function uploadUserInfoAction(formData) {
       profilePic,
       coverPic,
       username,
+      tagline: tagli,
     } = safeUpdated || {};
     console.log("User info updated:", { email: e });
     return {
@@ -141,6 +150,7 @@ export async function uploadUserInfoAction(formData) {
       profilePic,
       coverPic,
       name: n,
+      tagline: tagli,
       user: {
         _id: String(_id),
         name: n,
@@ -148,6 +158,7 @@ export async function uploadUserInfoAction(formData) {
         profilePic,
         coverPic,
         username,
+        tagline: tagli,
       },
     };
   } catch (err) {

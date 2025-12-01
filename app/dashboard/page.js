@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [name, setName] = useState("");
   const [profilePreviewUrl, setProfilePreviewUrl] = useState("");
   const [coverPreviewUrl, setCoverPreviewUrl] = useState("");
+  const [tagline, setTagline] = useState("");
 
   // Flags to track if images were explicitly removed
   const [profileRemoved, setProfileRemoved] = useState(false);
@@ -99,6 +100,16 @@ export default function Dashboard() {
     );
   };
 
+  const handleTaglineChange = (e) => {
+    setTagline(e.target.value);
+    // store the unsaved changes
+    setEdits((prev) => ({ ...prev, tagline: e.target.value }));
+    localStorage.setItem(
+      "edits",
+      JSON.stringify({ ...edits, tagline: e.target.value })
+    );
+  };
+
   // On refresh, the userInfo from context may take some time to load
   // So, we use useEffect to update the states when userInfo changes
   useEffect(() => {
@@ -121,6 +132,7 @@ export default function Dashboard() {
       setCoverPreviewUrl(
         edits?.coverPic || userInfo.coverPic || "/coverImage.jpg"
       );
+      setTagline(edits?.tagline || userInfo.tagline || "Enter your tagline");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]); // Run when userInfo changes
@@ -232,6 +244,24 @@ export default function Dashboard() {
                           placeholder={name}
                           className="w-full rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                           onChange={handleNameChange}
+                        />
+                      </div>
+
+                      {/* Tag line Input */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="tagline"
+                          className="text-sm font-medium text-gray-300"
+                        >
+                          Tagline
+                        </label>
+                        <input
+                          id="tagline"
+                          name="tagline"
+                          type="text"
+                          placeholder={tagline}
+                          className="w-full rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                          onChange={handleTaglineChange}
                         />
                       </div>
 

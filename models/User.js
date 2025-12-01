@@ -10,6 +10,8 @@ const userSchema = new Schema(
     coverPic: String,
     status: String,
     otp: String,
+    tagline: String,
+    cokeLink: String,
     signMethod: {
       type: String,
       enum: ["github", "google", "local"],

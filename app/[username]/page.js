@@ -40,6 +40,7 @@ const Username = () => {
 
   const [profile, setProfile] = useState("/profilePic.png");
   const [cover, setCover] = useState("/coverImage.jpg");
+  const [tagline, setTagline] = useState("Loading profile...");
 
   // Initialize localStorage values on client side only
   useEffect(() => {
@@ -66,11 +67,14 @@ const Username = () => {
       dispatch(tellToFetchData(false));
       const profilePic = res.profilePic || "/profilePic.png";
       const coverPic = res.coverPic || "/coverImage.jpg";
+      const userTagline = res.tagline || "Check out my content!";
       setProfile(profilePic);
       setCover(coverPic);
+      setTagline(userTagline);
       // Save data on localStorage for later use without extra fetches
       localStorage.setItem("profilePic", profilePic);
       localStorage.setItem("coverPic", coverPic);
+      localStorage.setItem("tagline", userTagline);
     } else {
       return;
     }
@@ -195,11 +199,7 @@ const Username = () => {
               )}
               <span className="flex flex-col gap-2 items-center justify-center text-center">
                 <p>{username}</p>
-                <p>
-                  {isSessionLoading
-                    ? "Loading profile..."
-                    : "Created animated Web novels!"}
-                </p>
+                <p>{isSessionLoading ? "Loading profile..." : tagline}</p>
                 <span className="flex gap-2 justify-center items-center">
                   <p>{totalDonations} Donations .</p>
                   <p> {uniqueSupporters} supporters .</p>
