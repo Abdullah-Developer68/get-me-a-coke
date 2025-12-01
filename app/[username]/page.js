@@ -40,7 +40,14 @@ const Username = () => {
 
   const [profile, setProfile] = useState("/profilePic.png");
   const [cover, setCover] = useState("/coverImage.jpg");
-  const [tagline, setTagline] = useState("Loading profile...");
+  const [tagline, setTagline] = useState(() => {
+    try {
+      const userInfo = localStorage.getItem("userInfo");
+      return userInfo ? JSON.parse(userInfo).tagline || "Check out my content!" : "Check out my content!";
+    } catch {
+      return "Check out my content!";
+    }
+  });
 
   // Initialize localStorage values on client side only
   useEffect(() => {
@@ -74,7 +81,6 @@ const Username = () => {
       // Save data on localStorage for later use without extra fetches
       localStorage.setItem("profilePic", profilePic);
       localStorage.setItem("coverPic", coverPic);
-      localStorage.setItem("tagline", userTagline);
     } else {
       return;
     }

@@ -30,6 +30,7 @@ export const GET = async (request) => {
         profilePic: user.profilePic || "/profilePic.png",
         name: user.name,
         username: user.username,
+        tagline: user.tagline || "Check out my content!",
       },
       { status: 200 }
     );

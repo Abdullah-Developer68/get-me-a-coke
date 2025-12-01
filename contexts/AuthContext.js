@@ -29,7 +29,8 @@ const AuthProvider = ({ children }) => {
         prev.image !== userData.image ||
         prev.username !== userData.username ||
         prev.profilePic !== userData.profilePic ||
-        prev.coverPic !== userData.coverPic
+        prev.coverPic !== userData.coverPic ||
+        prev.tagline !== userData.tagline
       ) {
         localStorage.setItem("userInfo", JSON.stringify(userData));
         return userData;
@@ -41,6 +42,9 @@ const AuthProvider = ({ children }) => {
   const clearDataOnLogout = useCallback(() => {
     setuserInfo(null);
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("edits");
+    localStorage.removeItem("profilePic");
+    localStorage.removeItem("coverPic");
   }, []);
 
   // when user refreshes the page

@@ -123,6 +123,7 @@ export const authOptions = {
         session.user.profilePic = token.profilePic;
         session.user.coverPic = token.coverPic;
         session.user.name = token.name;
+        session.user.tagline = token.tagline;
       }
       return session;
     },
@@ -142,6 +143,7 @@ export const authOptions = {
           token.profilePic = dbUser?.profilePic || user.image;
           token.coverPic = dbUser?.coverPic;
           token.name = dbUser?.name || user.name;
+          token.tagline = dbUser?.tagline;
         }
         // For credentials sign-in, user object already has all data
         else {
@@ -150,6 +152,7 @@ export const authOptions = {
           token.profilePic = user.profilePic;
           token.coverPic = user.coverPic;
           token.name = user.name;
+          token.tagline = user.tagline;
         }
       }
 
@@ -158,6 +161,7 @@ export const authOptions = {
         token.name = session.name || token.name;
         token.profilePic = session.profilePic || token.profilePic;
         token.coverPic = session.coverPic || token.coverPic;
+        token.tagline = session.tagline || token.tagline;
       }
 
       return token;

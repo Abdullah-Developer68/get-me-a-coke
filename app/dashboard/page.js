@@ -171,6 +171,7 @@ export default function Dashboard() {
         name: name || userInfo.name,
         profilePic: res.profilePic || userInfo.profilePic,
         coverPic: res.coverPic || userInfo.coverPic,
+        tagline: res.tagline || userInfo.tagline,
       })
     );
 
@@ -182,6 +183,7 @@ export default function Dashboard() {
         name: name || userInfo.name,
         profilePic: res.profilePic || userInfo.profilePic,
         coverPic: res.coverPic || userInfo.coverPic,
+        tagline: res.tagline || userInfo.tagline,
       });
     } catch (error) {
       console.error("Failed to update session:", error);
