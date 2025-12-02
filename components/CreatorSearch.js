@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function CreatorSearch() {
+export default function CreatorSearch({ compact = false }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState([]);
   const [popularCreators, setPopularCreators] = useState([]);
@@ -116,13 +116,25 @@ export default function CreatorSearch() {
 
   return (
     <div
-      className="flex w-full sm:w-5/6 md:w-3/4 lg:w-2/3 xl:w-1/2 justify-center mt-6 md:mt-10 relative px-4 sm:px-0"
+      className={
+        compact
+          ? "flex w-full justify-center relative"
+          : "flex w-full sm:w-5/6 md:w-3/4 lg:w-2/3 xl:w-1/2 justify-center mt-6 md:mt-10 relative px-4 sm:px-0"
+      }
       ref={dropdownRef}
     >
       <input
         type="text"
-        placeholder="Search for your creator you wish to support!"
-        className="rounded-full p-2 sm:p-3 bg-white w-full text-black placeholder:text-black placeholder:italic text-center text-sm sm:text-base hover:bg-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+        placeholder={
+          compact
+            ? "Search creators..."
+            : "Search for your creator you wish to support!"
+        }
+        className={
+          compact
+            ? "rounded-full px-4 py-2 bg-gray-100 w-full text-black placeholder:text-gray-500 text-sm hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 border border-gray-300"
+            : "rounded-full p-2 sm:p-3 bg-white w-full text-black placeholder:text-black placeholder:italic text-center text-sm sm:text-base hover:bg-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+        }
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
@@ -139,9 +151,17 @@ export default function CreatorSearch() {
 
       {/* Search/Loading Icon */}
       {isSearching && (
-        <div className="absolute right-5 top-3">
+        <div
+          className={
+            compact ? "absolute right-3 top-2" : "absolute right-5 top-3"
+          }
+        >
           <svg
-            className="animate-spin h-6 w-6 text-gray-600"
+            className={
+              compact
+                ? "animate-spin h-5 w-5 text-gray-600"
+                : "animate-spin h-6 w-6 text-gray-600"
+            }
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -171,7 +191,11 @@ export default function CreatorSearch() {
         results.length
       )}
       {showDropdown && (
-        <div className="absolute top-14 w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200">
+        <div
+          className={`absolute ${
+            compact ? "top-11" : "top-14"
+          } w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200`}
+        >
           {isSearching && results.length === 0 ? (
             <div className="p-4 text-center text-gray-500">
               <svg
@@ -265,7 +289,11 @@ export default function CreatorSearch() {
 
       {/* Suggestions Dropdown - shown when input is focused but empty */}
       {showSuggestions && !showDropdown && (
-        <div className="absolute top-14 w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200">
+        <div
+          className={`absolute ${
+            compact ? "top-11" : "top-14"
+          } w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200`}
+        >
           <div className="p-2 bg-linear-to-r from-red-50 to-orange-50 border-b text-xs text-gray-600 font-semibold flex items-center gap-2">
             <svg
               className="w-4 h-4 text-red-400"
