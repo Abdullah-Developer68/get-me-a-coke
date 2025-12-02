@@ -113,12 +113,8 @@ const Username = () => {
       fetchUserInfo(username);
     }
   }, [username, userInfo]);
-  // This gets the user info whenever the username in the url changes
-  useEffect(() => {
-    fetchUserInfo(username);
-  }, [username]);
 
-  // this sends a req to the checkout api route for donating money via stripe
+  // This sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {
     if (!amt) return;
     setIsLoading(true);
