@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/db/dbConnect";
 import { stripe } from "@/lib/stripe";
 import Payment from "@/models/Payment";
-import { unstable_after } from "next/server";
 
 // This is the route at which Stripe webhook sends the data to our server after successful processing on stripes server
 export async function POST(request) {
@@ -76,6 +75,7 @@ export async function POST(request) {
               session.metadata?.supporter_message || session.description || "",
             // store amount in smallest currency unit (e.g. cents for USD)
             amount: Number(session.amount_total ?? 0),
+            
           };
 
           console.log("saving payments in the data base");

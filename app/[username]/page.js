@@ -3,13 +3,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from "react-redux";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+import useAuth from "@/hooks/useAuth";
 
 const Username = () => {
   // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
@@ -25,7 +25,7 @@ const Username = () => {
 
   const isFetch = useSelector((state) => state.user.fetch);
 
-  const { status } = useSession();
+  const { userInfo, status } = useAuth();
   const isSessionLoading = status === "loading";
 
   // states
@@ -95,14 +95,24 @@ const Username = () => {
     }
   };
 
-  // This gets the latest info after user updates their profile
+  // This gets the user info whenever the username in the url changes
   useEffect(() => {
-    if (isFetch) {
-      console.log("The user data is getting fetched");
+    // If the URL username matches the logged-in user's username, use userInfo instead of fetching
+    if (userInfo?.username === username) {
+      setProfile(userInfo.profilePic || "/profilePic.png");
+      setCover(userInfo.coverPic || "/coverImage.jpg");
+      setTagline(userInfo.tagline || "Check out my content!");
+
+      localStorage.setItem(
+        "profilePic",
+        userInfo.profilePic || "/profilePic.png"
+      );
+      localStorage.setItem("coverPic", userInfo.coverPic || "/coverImage.jpg");
+    } else {
+      // Only fetch if it's a different creator's page
       fetchUserInfo(username);
     }
-  }, [isFetch]);
-
+  }, [username, userInfo]);
   // This gets the user info whenever the username in the url changes
   useEffect(() => {
     fetchUserInfo(username);
@@ -121,6 +131,7 @@ const Username = () => {
           name: supporterName,
           message: supporterMessage,
           username,
+          email: userInfo.email,
         }),
       });
 
@@ -154,7 +165,7 @@ const Username = () => {
     const data = await res.json();
     setPayData(Array.isArray(data) ? data : []);
     // log the response data (not the state variable immediately after setState)
-    console.log("Recent payment info:", data);
+    // console.log("Recent payment info:", data);
   }, [username]);
 
   const getStats = useCallback(async () => {
@@ -162,7 +173,7 @@ const Username = () => {
       `/api/payment/stats?username=${encodeURIComponent(username)}`
     );
     const data = await res.json();
-    console.log("Payment stats:", data);
+    // console.log("Payment stats:", data);
 
     setTotalAmount(data?.totalAmount || 0);
     setAverageAmount(data?.averageAmount || 0);
