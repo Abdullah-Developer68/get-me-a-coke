@@ -75,17 +75,17 @@ export default function CreatorSearch() {
         console.log("Search results:", data);
         console.log("Results count:", data.length);
         setResults(data);
-        setShowDropdown(data.length > 0);
-        console.log("Show dropdown:", data.length > 0);
+        setShowDropdown(true); // Always show dropdown after search completes
+        console.log("Show dropdown:", true);
       } else {
         console.error("Search failed:", response.statusText);
         setResults([]);
-        setShowDropdown(false);
+        setShowDropdown(true); // Show dropdown to display "no results"
       }
     } catch (error) {
       console.error("Search error:", error);
       setResults([]);
-      setShowDropdown(false);
+      setShowDropdown(true); // Show dropdown to display "no results"
     } finally {
       setIsSearching(false);
     }
@@ -139,7 +139,7 @@ export default function CreatorSearch() {
 
       {/* Search/Loading Icon */}
       {isSearching && (
-        <div className="absolute right-5 top-2">
+        <div className="absolute right-5 top-3">
           <svg
             className="animate-spin h-6 w-6 text-gray-600"
             xmlns="http://www.w3.org/2000/svg"
