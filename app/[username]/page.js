@@ -229,6 +229,8 @@ const Username = () => {
                   alt="profile pic"
                   width={128}
                   height={128}
+                  priority
+                  sizes="128px"
                   className="w-32 h-32 object-cover rounded-full"
                 />
               ) : (
