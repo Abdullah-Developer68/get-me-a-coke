@@ -8,6 +8,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const Username = () => {
   // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
@@ -37,13 +39,17 @@ const Username = () => {
   const [topSupporters, setTopSupporters] = useState([]);
   const [totalDonations, setTotalDonations] = useState(0);
   const [averageAmount, setAverageAmount] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const [profileUrl, setProfileUrl] = useState("");
 
   const [profile, setProfile] = useState("/profilePic.png");
   const [cover, setCover] = useState("/coverImage.jpg");
   const [tagline, setTagline] = useState(() => {
     try {
       const userInfo = localStorage.getItem("userInfo");
-      return userInfo ? JSON.parse(userInfo).tagline || "Check out my content!" : "Check out my content!";
+      return userInfo
+        ? JSON.parse(userInfo).tagline || "Check out my content!"
+        : "Check out my content!";
     } catch {
       return "Check out my content!";
     }
@@ -65,6 +71,9 @@ const Username = () => {
     if (cachedCover && cachedCover !== "null" && cachedCover !== "undefined") {
       setCover(cachedCover);
     }
+
+    // Set the profile URL on client side
+    setProfileUrl(window.location.href);
   }, []);
 
   const fetchUserInfo = async (username) => {
@@ -167,6 +176,17 @@ const Username = () => {
     getStats();
   }, [getRecentPaymentInfo, getStats]);
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      toast.success("Coke Url copied to clipboard!");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   return (
     <>
       <ProtectedRoute>
@@ -191,7 +211,7 @@ const Username = () => {
                 <div className="w-full h-full bg-gray-800 animate-pulse" />
               )}
             </div>
-            <div className="profilePic absolute flex flex-col -bottom-8 text-white justify-center items-center gap-2">
+            <div className="profilePic absolute flex flex-col -bottom-22 text-white justify-center items-center gap-2">
               {profile ? (
                 <Image
                   src={profile}
@@ -206,12 +226,30 @@ const Username = () => {
               <span className="flex flex-col gap-2 items-center justify-center text-center">
                 <p>{username}</p>
                 <p>{isSessionLoading ? "Loading profile..." : tagline}</p>
+
                 <span className="flex gap-2 justify-center items-center">
                   <p>{totalDonations} Donations .</p>
                   <p> {uniqueSupporters} supporters .</p>
                   <p> ${totalAmount / 100}/release</p>
                 </span>
               </span>
+              <div className="flex items-center gap-2 bg-gray-800/80 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-600/50 shadow-lg">
+                <span className="text-gray-400 text-sm">🔗</span>
+                <span className="text-gray-300 text-sm font-medium truncate max-w-[200px] sm:max-w-[300px]">
+                  {profileUrl}
+                </span>
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center justify-center p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-all duration-200 border border-gray-500/50 hover:border-gray-400/50"
+                  title={copied ? "Copied!" : "Copy link"}
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-300" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
