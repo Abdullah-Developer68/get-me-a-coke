@@ -73,4 +73,4 @@ The application follows a client-server architecture with clear separation of co
 
 
 
-![alt text](<Screenshot 2025-12-05 010652.png>)
+![Get-Me-A-Coke Application](./public/appImage.png)
