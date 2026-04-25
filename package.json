@@ -20,7 +20,7 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.540.0",
     "mongoose": "^8.17.1",
-    "next": "^15.4.5",
+    "next": "15.4.8",
     "next-auth": "^4.24.11",
     "nodemailer": "^7.0.8",
     "react": "19.1.0",
