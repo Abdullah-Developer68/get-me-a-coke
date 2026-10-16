@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  Sparkles,
   Flame,
 } from "lucide-react";
 
@@ -198,13 +199,16 @@ const Navbar = () => {
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className="text-sm font-medium text-zinc-300 hover:text-white px-3 py-1.5 transition-colors"
+                className="text-sm font-medium text-zinc-300 hover:text-white px-3 py-2 transition-colors hidden sm:inline-block"
               >
-                Login
+                Sign In
               </Link>
-              <Link href="/signup">
-                <button className="inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors duration-200 cursor-pointer">
-                  <span>Sign Up</span>
+              <Link href={pathname === "/login" ? "/signup" : "/login"}>
+                <button className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 cursor-pointer">
+                  <Sparkles className="w-4 h-4" />
+                  <span>
+                    {pathname === "/login" ? "Create Account" : "Get Started"}
+                  </span>
                 </button>
               </Link>
             </div>
