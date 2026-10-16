@@ -6,10 +6,10 @@ const Footer = () => {
   return (
     <footer className="relative z-10 border-t border-white/10 bg-[#09090b] text-zinc-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-red-600 p-0.5">
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-red-600 p-0.5 shrink-0">
               <Image
                 src="/logo.jpg"
                 alt="Get Me A Coke"
@@ -18,7 +18,7 @@ const Footer = () => {
                 className="rounded-[9px] object-cover w-full h-full"
               />
             </div>
-            <div>
+            <div className="text-left">
               <div className="text-sm font-bold text-white flex items-center gap-1">
                 Get Me A <span className="text-red-500">Coke</span>
               </div>
@@ -30,7 +30,7 @@ const Footer = () => {
 
           {/* Right Navigation & Clean Copyright */}
           <div className="flex flex-col items-center sm:items-end gap-1.5 text-xs">
-            <div className="flex items-center gap-5 font-medium text-zinc-300">
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-5 gap-y-1.5 font-medium text-zinc-300">
               <Link href="/" className="hover:text-red-400 transition-colors">
                 Home
               </Link>
@@ -53,7 +53,7 @@ const Footer = () => {
                 Sign Up
               </Link>
             </div>
-            <p className="text-zinc-500 whitespace-nowrap">
+            <p className="text-zinc-500 text-center sm:text-right">
               &copy; {new Date().getFullYear()} Get Me A Coke &middot; All rights reserved.
             </p>
           </div>

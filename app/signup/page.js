@@ -148,10 +148,10 @@ const Signup = () => {
     isOtpVerified && password.length >= 8 && !password.includes(" ");
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-12">
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8 sm:py-12">
       <div className="relative w-full max-w-md">
         <Card className="relative w-full rounded-3xl bg-zinc-900 border border-white/15 shadow-2xl text-white">
-          <CardHeader className="space-y-3 pb-2 text-center">
+          <CardHeader className="space-y-3 pb-2 px-5 sm:px-6 text-center">
             <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-2xl bg-red-600 p-0.5">
               <Image
                 src="/logo.jpg"
@@ -162,16 +162,16 @@ const Signup = () => {
               />
             </div>
             <div>
-              <CardTitle className="text-2xl font-extrabold tracking-tight text-white">
+              <CardTitle className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
                 Create your creator account
               </CardTitle>
-              <CardDescription className="text-zinc-400 mt-1">
+              <CardDescription className="text-zinc-400 mt-1 text-xs sm:text-sm">
                 Verify your email with OTP or sign up with 1 click
               </CardDescription>
             </div>
 
             {/* Step Indicator Pills */}
-            <div className="flex items-center justify-center gap-2 pt-2 text-[11px] font-semibold">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-2 text-[11px] font-semibold">
               <span
                 className={`px-2.5 py-1 rounded-full border ${
                   !showOtpBox && !isOtpVerified
@@ -206,7 +206,7 @@ const Signup = () => {
             </div>
           </CardHeader>
 
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 px-5 sm:px-6">
             <form onSubmit={localSignup} className="space-y-5">
               {/* Step 1: Email */}
               <div className="space-y-2">
@@ -216,7 +216,7 @@ const Signup = () => {
                 >
                   Email Address
                 </Label>
-                <div className="flex gap-2 items-center">
+                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                   <div className="relative flex-1">
                     <Mail className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <Input
@@ -237,7 +237,7 @@ const Signup = () => {
                     type="button"
                     onClick={sendOTP}
                     disabled={isOtpVerified || otpButton === "Sending..."}
-                    className="h-11 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white border border-white/15 font-semibold cursor-pointer shrink-0"
+                    className="h-11 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white border border-white/15 font-semibold cursor-pointer shrink-0 w-full sm:w-auto"
                   >
                     {isOtpVerified ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -253,20 +253,20 @@ const Signup = () => {
 
               {/* Step 2: OTP Verification */}
               {showOtpBox && (
-                <div className="rounded-2xl bg-zinc-950 border border-red-500/30 p-4 space-y-4">
-                  <div className="flex items-center justify-between">
+                <div className="rounded-2xl bg-zinc-950 border border-red-500/30 p-3.5 sm:p-4 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     <Label
                       htmlFor="otp"
                       className="text-zinc-200 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5"
                     >
-                      <ShieldCheck className="w-4 h-4 text-red-400" />
+                      <ShieldCheck className="w-4 h-4 text-red-400 shrink-0" />
                       Enter 6-Digit OTP
                     </Label>
                     <span className="text-[11px] text-zinc-400">
                       Check your inbox
                     </span>
                   </div>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center overflow-x-auto py-1">
                     <InputOTP
                       id="otp"
                       maxLength={6}
@@ -300,7 +300,7 @@ const Signup = () => {
               {/* Step 3: Password */}
               {showPassBox && (
                 <div className="space-y-2 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     <Label
                       htmlFor="password"
                       className="text-zinc-300 text-xs font-semibold uppercase tracking-wider"
@@ -391,7 +391,7 @@ const Signup = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="justify-center border-t border-white/10 pt-5">
+          <CardFooter className="justify-center border-t border-white/10 pt-5 px-5 sm:px-6">
             <p className="text-sm text-zinc-400">
               Already have an account?{" "}
               <Link

@@ -158,8 +158,8 @@ export default function CreatorSearch({ compact = false }) {
       <div className="relative w-full group">
         <div className="relative flex items-center w-full">
           <Search
-            className={`absolute left-4 text-zinc-400 group-focus-within:text-red-400 transition-colors pointer-events-none ${
-              compact ? "w-4 h-4" : "w-5 h-5"
+            className={`absolute left-3.5 sm:left-4 text-zinc-400 group-focus-within:text-red-400 transition-colors pointer-events-none ${
+              compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"
             }`}
           />
           <input
@@ -167,12 +167,12 @@ export default function CreatorSearch({ compact = false }) {
             placeholder={
               compact
                 ? "Search creators (@mrbeast, @chai-aur-code)..."
-                : "Search a creator you want to support (e.g., mrbeast)..."
+                : "Search a creator to support (e.g., mrbeast)..."
             }
             className={
               compact
                 ? "rounded-full pl-10 pr-9 py-2 bg-zinc-900 w-full text-zinc-100 placeholder:text-zinc-500 text-sm hover:bg-zinc-800/80 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 border border-white/10"
-                : "rounded-2xl pl-12 pr-12 py-4 bg-zinc-900 w-full text-white placeholder:text-zinc-400 text-sm sm:text-base shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-red-500 border border-white/15 hover:border-white/25"
+                : "rounded-2xl pl-10 sm:pl-12 pr-10 sm:pr-24 py-3.5 sm:py-4 bg-zinc-900 w-full text-white placeholder:text-zinc-400 text-sm sm:text-base shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-red-500 border border-white/15 hover:border-white/25"
             }
             value={searchTerm}
             onChange={(e) => {
@@ -189,7 +189,7 @@ export default function CreatorSearch({ compact = false }) {
           />
 
           {/* Clear or Loading Icon */}
-          <div className="absolute right-3.5 flex items-center gap-1.5">
+          <div className="absolute right-3 sm:right-3.5 flex items-center gap-1.5">
             {isSearching ? (
               <Loader2
                 className={`animate-spin text-red-500 ${
@@ -225,9 +225,9 @@ export default function CreatorSearch({ compact = false }) {
       {/* Dropdown Modal with Search Results */}
       {showDropdown && (
         <div
-          className={`absolute ${
-            compact ? "top-12" : "top-16"
-          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
+          className={`absolute left-0 right-0 ${
+            compact ? "top-12" : "top-14 sm:top-16"
+          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-80 sm:max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
         >
           {isSearching && results.length === 0 ? (
             <div className="p-6 text-center text-zinc-400">
@@ -241,7 +241,7 @@ export default function CreatorSearch({ compact = false }) {
                   Found {results.length} creator
                   {results.length !== 1 ? "s" : ""}
                 </span>
-                <span className="text-[11px] text-zinc-500">
+                <span className="hidden sm:inline text-[11px] text-zinc-500">
                   Press Enter to select
                 </span>
               </div>
@@ -250,14 +250,14 @@ export default function CreatorSearch({ compact = false }) {
                   <div
                     key={index}
                     onClick={() => handleSelectCreator(creator.username)}
-                    className="flex items-center gap-3.5 px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
+                    className="flex items-center gap-3 sm:gap-3.5 px-3.5 sm:px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
                   >
                     <Image
                       src={creator.profilePic || "/burger-dance.gif"}
                       alt={creator.username}
                       width={44}
                       height={44}
-                      className="rounded-full border border-white/15 w-11 h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
+                      className="rounded-full border border-white/15 w-10 h-10 sm:w-11 sm:h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
                       unoptimized
                     />
                     <div className="flex-1 min-w-0 text-left">
@@ -268,8 +268,8 @@ export default function CreatorSearch({ compact = false }) {
                         {creator.name}
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors">
-                      Support
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors shrink-0">
+                      <span className="hidden xs:inline">Support</span>
                       <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </div>
@@ -277,11 +277,13 @@ export default function CreatorSearch({ compact = false }) {
               </div>
             </>
           ) : (
-            <div className="p-8 text-center">
+            <div className="p-6 sm:p-8 text-center">
               <div className="w-12 h-12 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center mx-auto mb-3">
                 <Search className="w-5 h-5 text-zinc-400" />
               </div>
-              <p className="text-zinc-200 font-semibold">No creators found</p>
+              <p className="text-zinc-200 font-semibold text-sm sm:text-base">
+                No creators found
+              </p>
               <p className="text-xs text-zinc-400 mt-1">
                 Try searching for @mrbeast, @chai-aur-code, or @code-with-harry
               </p>
@@ -293,9 +295,9 @@ export default function CreatorSearch({ compact = false }) {
       {/* Suggestions Dropdown - shown when input is focused but empty */}
       {showSuggestions && !showDropdown && (
         <div
-          className={`absolute ${
-            compact ? "top-12" : "top-16"
-          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
+          className={`absolute left-0 right-0 ${
+            compact ? "top-12" : "top-14 sm:top-16"
+          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-80 sm:max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
         >
           <div className="px-4 py-2.5 bg-zinc-950 text-xs text-zinc-300 font-semibold uppercase tracking-wider flex items-center gap-2">
             <Flame className="w-3.5 h-3.5 text-red-500 fill-red-500" />
@@ -312,14 +314,14 @@ export default function CreatorSearch({ compact = false }) {
                 <div
                   key={index}
                   onClick={() => handleSelectCreator(creator.username)}
-                  className="flex items-center gap-3.5 px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
+                  className="flex items-center gap-3 sm:gap-3.5 px-3.5 sm:px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
                 >
                   <Image
                     src={creator.profilePic || "/profilePic.png"}
                     alt={creator.username}
                     width={44}
                     height={44}
-                    className="rounded-full border border-white/15 w-11 h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
+                    className="rounded-full border border-white/15 w-10 h-10 sm:w-11 sm:h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
                     unoptimized
                   />
                   <div className="flex-1 min-w-0 text-left">
@@ -330,8 +332,8 @@ export default function CreatorSearch({ compact = false }) {
                       {creator.name}
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors">
-                    View Page
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors shrink-0">
+                    <span className="hidden sm:inline">View Page</span>
                     <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </div>

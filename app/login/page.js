@@ -64,10 +64,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-12">
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8 sm:py-12">
       <div className="relative w-full max-w-md">
         <Card className="relative w-full rounded-3xl bg-zinc-900 border border-white/15 shadow-2xl text-white">
-          <CardHeader className="space-y-3 pb-2 text-center">
+          <CardHeader className="space-y-3 pb-2 px-5 sm:px-6 text-center">
             <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-2xl bg-red-600 p-0.5">
               <Image
                 src="/logo.jpg"
@@ -78,16 +78,16 @@ const Login = () => {
               />
             </div>
             <div>
-              <CardTitle className="text-2xl font-extrabold tracking-tight text-white">
+              <CardTitle className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
                 Welcome back
               </CardTitle>
-              <CardDescription className="text-zinc-400 mt-1">
+              <CardDescription className="text-zinc-400 mt-1 text-xs sm:text-sm">
                 Sign in to manage your creator page & support
               </CardDescription>
             </div>
           </CardHeader>
 
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 px-5 sm:px-6">
             <form onSubmit={handleCredentialsLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label
@@ -111,7 +111,7 @@ const Login = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-1">
                   <Label
                     htmlFor="password"
                     className="text-zinc-300 text-xs font-semibold uppercase tracking-wider"
@@ -207,7 +207,7 @@ const Login = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="justify-center border-t border-white/10 pt-5">
+          <CardFooter className="justify-center border-t border-white/10 pt-5 px-5 sm:px-6">
             <p className="text-sm text-zinc-400">
               Don&apos;t have an account?{" "}
               <Link

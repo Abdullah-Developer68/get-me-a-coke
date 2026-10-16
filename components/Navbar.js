@@ -62,14 +62,14 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#09090b]/90 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 gap-2 sm:gap-4">
           {/* Logo Section */}
           <Link
             href="/"
-            className="flex items-center gap-3 group shrink-0 focus:outline-none"
+            className="flex items-center gap-2.5 sm:gap-3 group shrink-0 focus:outline-none"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-red-600 p-0.5 shadow-sm transition-colors duration-200 group-hover:bg-red-500">
+            <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-600 p-0.5 shadow-sm transition-colors duration-200 group-hover:bg-red-500">
               <Image
                 src="/logo.jpg"
                 alt="Get Me A Coke Logo"
@@ -83,7 +83,7 @@ const Navbar = () => {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-1">
                 Get Me A <span className="text-red-500">Coke</span>
               </span>
               <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-400 hidden sm:block -mt-1">
@@ -92,16 +92,16 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Creator Search - Show on username pages */}
+          {/* Creator Search - Show on username pages on desktop */}
           {isUsernamePage && (
-            <div className="hidden md:block flex-1 max-w-md mx-4">
+            <div className="hidden lg:block flex-1 max-w-md mx-4">
               <CreatorSearch compact />
             </div>
           )}
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation (md and up) */}
           {session && !isLoading ? (
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <div className="flex items-center gap-1 rounded-full bg-zinc-900 border border-white/10 p-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -110,13 +110,13 @@ const Navbar = () => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ${
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
                         isActive
                           ? "bg-red-600 text-white"
                           : "text-zinc-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4 shrink-0" />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -124,23 +124,23 @@ const Navbar = () => {
               </div>
 
               {/* User Profile Dropdown */}
-              <div className="relative ml-2">
+              <div className="relative ml-1 lg:ml-2">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   onBlur={() => {
                     setTimeout(() => setShowDropdown(false), 200);
                   }}
-                  className="flex items-center gap-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/10 pl-1.5 pr-3 py-1 text-sm font-medium text-zinc-200 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/10 pl-1.5 pr-2.5 py-1 text-sm font-medium text-zinc-200 transition-colors cursor-pointer"
                 >
                   <Image
                     src={activeAvatar}
                     alt={activeUsername || "User"}
                     width={28}
                     height={28}
-                    className="w-7 h-7 rounded-full object-cover ring-1 ring-red-500/40"
+                    className="w-7 h-7 rounded-full object-cover ring-1 ring-red-500/40 shrink-0"
                     unoptimized
                   />
-                  <span className="hidden lg:inline max-w-[120px] truncate">
+                  <span className="hidden xl:inline max-w-[120px] truncate">
                     @{activeUsername}
                   </span>
                   <ChevronDown
@@ -197,16 +197,16 @@ const Navbar = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               <Link
                 href="/login"
-                className="text-sm font-medium text-zinc-300 hover:text-white px-3 py-2 transition-colors hidden sm:inline-block"
+                className="text-xs sm:text-sm font-medium text-zinc-300 hover:text-white px-2.5 sm:px-3 py-2 transition-colors"
               >
                 Sign In
               </Link>
               <Link href={pathname === "/login" ? "/signup" : "/login"}>
-                <button className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 cursor-pointer">
-                  <Sparkles className="w-4 h-4" />
+                <button className="inline-flex items-center gap-1.5 sm:gap-2 bg-red-600 hover:bg-red-500 text-white px-3.5 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-200 cursor-pointer whitespace-nowrap">
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                   <span>
                     {pathname === "/login" ? "Create Account" : "Get Started"}
                   </span>
@@ -215,11 +215,11 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Mobile Menu Button */}
+          {/* Mobile / Tablet Menu Button */}
           {session && !isLoading && (
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="sm:hidden inline-flex items-center justify-center p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Toggle menu"
             >
               {showMobileMenu ? (
@@ -232,9 +232,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile / Tablet Menu */}
       {session && !isLoading && showMobileMenu && (
-        <div className="sm:hidden border-t border-white/10 bg-zinc-950">
+        <div className="md:hidden border-t border-white/10 bg-zinc-950">
           <div className="px-4 pt-3 pb-5 space-y-2">
             {isUsernamePage && (
               <div className="pb-2">
@@ -268,7 +268,7 @@ const Navbar = () => {
                   alt={activeUsername || "User"}
                   width={32}
                   height={32}
-                  className="w-8 h-8 rounded-full object-cover ring-1 ring-red-500/40"
+                  className="w-8 h-8 rounded-full object-cover ring-1 ring-red-500/40 shrink-0"
                   unoptimized
                 />
                 <div className="text-sm font-medium text-zinc-300 truncate">

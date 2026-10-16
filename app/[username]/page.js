@@ -235,12 +235,12 @@ const Username = () => {
 
   return (
     <ProtectedRoute>
-      <div className="flex flex-col items-center w-full pb-20">
+      <div className="flex flex-col items-center w-full pb-16 sm:pb-20">
         {/* HERO COVER & CREATOR HEADER */}
         <div className="relative w-full">
           {/* Cover Image Container */}
           <div
-            className="relative w-full h-[240px] sm:h-[320px] md:h-[400px] overflow-hidden bg-zinc-900 border-b border-white/10"
+            className="relative w-full h-[180px] sm:h-[280px] md:h-[380px] overflow-hidden bg-zinc-900 border-b border-white/10"
             aria-busy={isSessionLoading}
           >
             {cover ? (
@@ -259,10 +259,10 @@ const Username = () => {
           </div>
 
           {/* Creator Identity Card Arranged Vertically */}
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 sm:-mt-24 relative z-10">
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-14 sm:-mt-20 md:-mt-24 relative z-10">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-8 shadow-2xl flex flex-col items-center text-center">
               {/* Avatar centered on top */}
-              <div className="relative -mt-20 sm:-mt-22 mb-4 shrink-0">
+              <div className="relative -mt-16 sm:-mt-20 mb-3 sm:mb-4 shrink-0">
                 {profile ? (
                   <Image
                     src={profile}
@@ -271,33 +271,33 @@ const Username = () => {
                     height={128}
                     priority
                     sizes="128px"
-                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-zinc-950 ring-2 ring-white/20 bg-zinc-900 shadow-2xl"
+                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-zinc-950 ring-2 ring-white/20 bg-zinc-900 shadow-2xl"
                     unoptimized
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-full bg-zinc-800 animate-pulse" />
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-zinc-800 animate-pulse" />
                 )}
               </div>
 
               {/* Username + Badge */}
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-2 max-w-full">
+                <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight break-all sm:break-normal">
                   @{username}
                 </h1>
-                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-800 border border-white/15 px-2.5 py-0.5 text-xs font-semibold text-white">
+                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-800 border border-white/15 px-2.5 py-0.5 text-xs font-semibold text-white shrink-0">
                   <Sparkles className="w-3 h-3 text-white" />
                   Creator
                 </span>
               </div>
 
               {/* Tagline */}
-              <p className="text-sm sm:text-base text-zinc-300 max-w-xl mb-4">
+              <p className="text-xs sm:text-base text-zinc-300 max-w-xl mb-4 px-1">
                 {isSessionLoading ? "Loading profile..." : tagline}
               </p>
 
               {/* Copy Profile Link Pill */}
-              <div className="flex items-center gap-2 rounded-full bg-zinc-950 border border-white/15 pl-4 pr-2 py-1.5 max-w-full mb-6">
-                <span className="text-xs text-zinc-400 truncate max-w-[200px] sm:max-w-[320px] font-mono">
+              <div className="flex items-center justify-between sm:justify-center gap-2 rounded-full bg-zinc-950 border border-white/15 pl-3.5 sm:pl-4 pr-1.5 sm:pr-2 py-1.5 w-full sm:w-auto max-w-full mb-6">
+                <span className="text-xs text-zinc-400 truncate min-w-0 flex-1 sm:flex-initial sm:max-w-[320px] font-mono text-left">
                   {profileUrl}
                 </span>
                 <button
@@ -320,44 +320,44 @@ const Username = () => {
               </div>
 
               {/* Creator Stats Bar - Neutral White Icons */}
-              <div className="w-full pt-6 border-t border-white/10 grid grid-cols-3 gap-3 sm:gap-4 text-left">
-                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+              <div className="w-full pt-5 sm:pt-6 border-t border-white/10 grid grid-cols-3 gap-2 sm:gap-4 text-center sm:text-left">
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-2.5 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 min-w-0">
                   <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
                     <Gift className="w-5 h-5 text-white" />
                   </div>
-                  <div>
-                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                  <div className="min-w-0">
+                    <p className="text-base sm:text-2xl font-extrabold text-white truncate">
                       {totalDonations}
                     </p>
-                    <p className="text-xs text-zinc-400 font-medium">
+                    <p className="text-[11px] sm:text-xs text-zinc-400 font-medium truncate">
                       Donations
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-2.5 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 min-w-0">
                   <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
                     <Users className="w-5 h-5 text-white" />
                   </div>
-                  <div>
-                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                  <div className="min-w-0">
+                    <p className="text-base sm:text-2xl font-extrabold text-white truncate">
                       {uniqueSupporters}
                     </p>
-                    <p className="text-xs text-zinc-400 font-medium">
+                    <p className="text-[11px] sm:text-xs text-zinc-400 font-medium truncate">
                       Supporters
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-2.5 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 min-w-0">
                   <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
-                  <div>
-                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                  <div className="min-w-0">
+                    <p className="text-base sm:text-2xl font-extrabold text-white truncate">
                       ${totalAmount / 100}
                     </p>
-                    <p className="text-xs text-zinc-400 font-medium">
+                    <p className="text-[11px] sm:text-xs text-zinc-400 font-medium truncate">
                       Total Raised
                     </p>
                   </div>
@@ -368,14 +368,14 @@ const Username = () => {
         </div>
 
         {/* MAIN 2-COLUMN CONTENT: LEADERBOARD + DONATION CHECKOUT */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mt-8 w-full max-w-5xl px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mt-6 sm:mt-8 w-full max-w-5xl px-4 sm:px-6">
           {/* Left Column: Top Supporters & Recent Activity */}
-          <div className="lg:col-span-6 flex flex-col gap-6">
+          <div className="lg:col-span-6 flex flex-col gap-6 order-2 lg:order-1">
             {/* Top 3 Supporters Card */}
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-amber-400" />
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-6 shadow-xl">
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-5">
+                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
                   Top 3 Supporters
                 </h3>
                 <span className="text-xs font-medium text-zinc-400">
@@ -388,7 +388,7 @@ const Username = () => {
                   {topSupporters.map((s, idx) => (
                     <li
                       key={idx}
-                      className="flex items-center justify-between gap-3 rounded-2xl bg-zinc-950 border border-white/10 px-4 py-3"
+                      className="flex items-center justify-between gap-3 rounded-2xl bg-zinc-950 border border-white/10 px-3.5 sm:px-4 py-3"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 border border-white/10 shrink-0">
@@ -417,7 +417,7 @@ const Username = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
                   <span className="text-3xl mb-2">🏆</span>
                   <p className="text-sm font-semibold text-zinc-300">
                     No supporters on the podium yet
@@ -430,10 +430,10 @@ const Username = () => {
             </div>
 
             {/* Recent Donations Card */}
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <MessageSquareHeart className="w-5 h-5 text-red-400" />
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-6 shadow-xl">
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-5">
+                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquareHeart className="w-5 h-5 text-red-400 shrink-0" />
                   Recent Donations
                 </h3>
                 <span className="text-xs font-medium text-zinc-400">
@@ -446,10 +446,10 @@ const Username = () => {
                   {payData.map((s, idx) => (
                     <li
                       key={idx}
-                      className="rounded-2xl bg-zinc-950 border border-white/10 p-4 space-y-2"
+                      className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 space-y-2"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-600 p-1">
                             <Image
                               src="/logo.jpg"
@@ -459,16 +459,16 @@ const Username = () => {
                               className="rounded-lg object-cover w-full h-full"
                             />
                           </span>
-                          <span className="font-semibold text-white text-sm">
+                          <span className="font-semibold text-white text-sm truncate">
                             {s.name || "Supporter"}
                           </span>
                         </div>
-                        <span className="rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-xs font-bold text-red-300">
+                        <span className="rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-xs font-bold text-red-300 shrink-0">
                           +${s.amount / 100}
                         </span>
                       </div>
                       {s.message && (
-                        <p className="text-xs sm:text-sm text-zinc-300 bg-zinc-900 rounded-xl px-3.5 py-2 border border-white/5 italic">
+                        <p className="text-xs sm:text-sm text-zinc-300 bg-zinc-900 rounded-xl px-3.5 py-2 border border-white/5 italic break-words">
                           &ldquo;{s.message}&rdquo;
                         </p>
                       )}
@@ -476,7 +476,7 @@ const Username = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
                   <div className="w-12 h-12 rounded-2xl bg-red-600 p-0.5 mb-2 flex items-center justify-center">
                     <Image
                       src="/logo.jpg"
@@ -497,13 +497,13 @@ const Username = () => {
             </div>
           </div>
 
-          {/* Right Column: Make a Payment Card */}
-          <div className="lg:col-span-6">
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+          {/* Right Column: Make a Payment Card (shown first on mobile for easy conversion) */}
+          <div className="lg:col-span-6 order-1 lg:order-2">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-8 shadow-2xl relative overflow-hidden">
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                <div className="flex items-start justify-between gap-3 mb-6">
+                  <div className="min-w-0">
+                    <h3 className="text-lg sm:text-xl font-extrabold text-white break-words">
                       Buy @{username} a Coke
                     </h3>
                     <p className="text-xs text-zinc-400 mt-1">
@@ -526,7 +526,7 @@ const Username = () => {
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2.5">
                     Quick Select Tier
                   </label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                     {QUICK_TIERS.map((tier) => {
                       const isSelected = Number(amount) === tier.amount;
                       return (
@@ -535,21 +535,21 @@ const Username = () => {
                           type="button"
                           onClick={() => setAmount(String(tier.amount))}
                           disabled={isLoading}
-                          className={`rounded-2xl p-3 border text-left transition-all cursor-pointer ${
+                          className={`rounded-2xl p-2.5 sm:p-3 border text-left transition-all cursor-pointer ${
                             isSelected
                               ? "bg-red-600/20 border-red-500 text-white"
                               : "bg-zinc-950 border-white/10 hover:border-white/25 text-zinc-300"
                           }`}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-zinc-400">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-[11px] sm:text-xs font-medium text-zinc-400">
                               {tier.label}
                             </span>
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/10 text-zinc-300">
+                            <span className="self-start sm:self-auto text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/10 text-zinc-300">
                               {tier.badge}
                             </span>
                           </div>
-                          <p className="text-lg font-extrabold text-white mt-1">
+                          <p className="text-base sm:text-lg font-extrabold text-white mt-1">
                             ${tier.amount}
                           </p>
                         </button>
@@ -646,8 +646,8 @@ const Username = () => {
                     </div>
                   </div>
 
-                  <div className="pt-3 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <div className="pt-3 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 text-center">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>Encrypted & processed securely via Stripe</span>
                   </div>
                 </div>
