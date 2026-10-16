@@ -4,18 +4,29 @@ import { uploadUserInfoAction } from "@/actions/uploadUserInfoAction";
 import useAuth from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { useSession } from "next-auth/react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { toast } from "sonner";
+import {
+  Camera,
+  ImagePlus,
+  Trash2,
+  User,
+  Sparkles,
+  ExternalLink,
+  CheckCircle2,
+  Save,
+  Loader2,
+} from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { update } = useSession();
-  // Auth context
   const { userInfo, isLoading } = useAuth();
 
   // to track unsaved changes
@@ -30,6 +41,7 @@ export default function Dashboard() {
   const [profilePreviewUrl, setProfilePreviewUrl] = useState("");
   const [coverPreviewUrl, setCoverPreviewUrl] = useState("");
   const [tagline, setTagline] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Flags to track if images were explicitly removed
   const [profileRemoved, setProfileRemoved] = useState(false);
@@ -44,8 +56,7 @@ export default function Dashboard() {
     reader.onload = () => {
       if (e.target.id === "profile") {
         setProfilePreviewUrl(reader.result);
-        setProfileRemoved(false); // Reset flag when new image is selected
-        // store the unsaved changes
+        setProfileRemoved(false);
         setEdits((prev) => ({ ...prev, profilePic: reader.result }));
         localStorage.setItem(
           "edits",
@@ -53,8 +64,7 @@ export default function Dashboard() {
         );
       } else if (e.target.id === "cover") {
         setCoverPreviewUrl(reader.result);
-        setCoverRemoved(false); // Reset flag when new image is selected
-        // store the unsaved changes
+        setCoverRemoved(false);
         setEdits((prev) => ({ ...prev, coverPic: reader.result }));
         localStorage.setItem(
           "edits",
@@ -68,20 +78,19 @@ export default function Dashboard() {
   const removeFile = (type) => {
     if (type === "profile") {
       setProfilePreviewUrl("/profilePic.png");
-      setProfileRemoved(true); // Set flag when image is removed
-      document.getElementById("profile").value = "";
-      // update edits
+      setProfileRemoved(true);
+      const inputEl = document.getElementById("profile");
+      if (inputEl) inputEl.value = "";
       setEdits((prev) => ({ ...prev, profilePic: "/profilePic.png" }));
-
       localStorage.setItem(
         "edits",
         JSON.stringify({ ...edits, profilePic: "/profilePic.png" })
       );
     } else if (type === "cover") {
       setCoverPreviewUrl("/coverImage.jpg");
-      setCoverRemoved(true); // Set flag when image is removed
-      document.getElementById("cover").value = "";
-      // update edits
+      setCoverRemoved(true);
+      const inputEl = document.getElementById("cover");
+      if (inputEl) inputEl.value = "";
       setEdits((prev) => ({ ...prev, coverPic: "/coverImage.jpg" }));
       localStorage.setItem(
         "edits",
@@ -92,7 +101,6 @@ export default function Dashboard() {
 
   const handleNameChange = (e) => {
     setName(e.target.value);
-    // store the unsaved changes
     setEdits((prev) => ({ ...prev, name: e.target.value }));
     localStorage.setItem(
       "edits",
@@ -102,7 +110,6 @@ export default function Dashboard() {
 
   const handleTaglineChange = (e) => {
     setTagline(e.target.value);
-    // store the unsaved changes
     setEdits((prev) => ({ ...prev, tagline: e.target.value }));
     localStorage.setItem(
       "edits",
@@ -110,11 +117,8 @@ export default function Dashboard() {
     );
   };
 
-  // On refresh, the userInfo from context may take some time to load
-  // So, we use useEffect to update the states when userInfo changes
   useEffect(() => {
     if (userInfo) {
-      // set default edits if not already set
       if (edits === undefined) {
         const newEdits = {
           name: userInfo.name || "",
@@ -124,7 +128,6 @@ export default function Dashboard() {
         setEdits(newEdits);
         localStorage.setItem("edits", JSON.stringify(newEdits));
       }
-      // Form Fields -> last edits > userInfo > placeholders
       setName(edits?.name || userInfo.name || "Enter your name");
       setProfilePreviewUrl(
         edits?.profilePic || userInfo.profilePic || "/profilePic.png"
@@ -135,243 +138,372 @@ export default function Dashboard() {
       setTagline(edits?.tagline || userInfo.tagline || "Enter your tagline");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo]); // Run when userInfo changes
+  }, [userInfo]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <p className="text-gray-400">Loading...</p>
+      <div className="min-h-[75vh] flex flex-col items-center justify-center gap-3 text-white">
+        <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+        <p className="text-zinc-400 text-sm">Loading your studio...</p>
       </div>
     );
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     toast("Updating profile...");
     const formData = new FormData(e.target);
 
-    // Debug: Log FormData entries
-    console.log("FormData entries:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    const res = await uploadUserInfoAction(formData);
-    if (!res.ok) {
-      alert("Error updating profile: " + res.error);
-      return;
-    }
-
-    dispatch(tellToFetchData(true)); // Tells the user's page to fetch updated data
-    // Update userInfo with the latest changes and the previous values are set as fallbacks
-    localStorage.setItem(
-      "userInfo",
-      JSON.stringify({
-        ...userInfo,
-        name: name || userInfo.name,
-        profilePic: res.profilePic || userInfo.profilePic,
-        coverPic: res.coverPic || userInfo.coverPic,
-        tagline: res.tagline || userInfo.tagline,
-      })
-    );
-
-    // update method updates the token so we need to handle these changes in the jwt callback and session will get the changes from the token
-    // IMPORTANT: Only pass the actual URLs from the server response, NOT data URLs (which are huge) they will exceed the maximum header size
-    // allowed by the browser and the request will fail and the session will not be updated
     try {
-      await update({
-        name: name || userInfo.name,
-        profilePic: res.profilePic || userInfo.profilePic,
-        coverPic: res.coverPic || userInfo.coverPic,
-        tagline: res.tagline || userInfo.tagline,
-      });
-    } catch (error) {
-      console.error("Failed to update session:", error);
+      const res = await uploadUserInfoAction(formData);
+      if (!res.ok) {
+        toast.error("Error updating profile: " + res.error);
+        setIsSaving(false);
+        return;
+      }
+
+      dispatch(tellToFetchData(true));
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          ...userInfo,
+          name: name || userInfo.name,
+          profilePic: res.profilePic || userInfo.profilePic,
+          coverPic: res.coverPic || userInfo.coverPic,
+          tagline: res.tagline || userInfo.tagline,
+        })
+      );
+
+      try {
+        await update({
+          name: name || userInfo.name,
+          profilePic: res.profilePic || userInfo.profilePic,
+          coverPic: res.coverPic || userInfo.coverPic,
+          tagline: res.tagline || userInfo.tagline,
+        });
+      } catch (error) {
+        console.error("Failed to update session:", error);
+      }
+
+      toast.success("Profile updated successfully");
+      setTimeout(() => {
+        router.push(`/${userInfo.username}`);
+      }, 100);
+    } finally {
+      setIsSaving(false);
     }
-    toast.success("Profile updated successfully");
-    // Small delay to ensure localStorage is written before redirect
-    setTimeout(() => {
-      router.push(`/${userInfo.username}`);
-    }, 100);
   };
 
   return (
-    <>
-      <ProtectedRoute>
-        <div className="min-h-screen bg-black text-white">
-          <div className="container mx-auto px-4 py-12">
-            <div className="max-w-5xl mx-auto">
-              {/* Header */}
-              <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
-                <p className="text-gray-400 text-lg">
-                  Customize your profile and make it yours
-                </p>
+    <ProtectedRoute>
+      <div className="min-h-screen py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/25 px-3 py-1 text-xs font-semibold text-red-400 mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              Creator Studio
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Customize Your Page
+            </h1>
+            <p className="text-zinc-400 text-sm sm:text-base mt-1">
+              Personalize your branding, cover banner, and creator tagline.
+            </p>
+          </div>
+
+          {userInfo?.username && (
+            <Link
+              href={`/${userInfo.username}`}
+              className="inline-flex items-center gap-2 self-start sm:self-auto rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/15 px-4 py-2.5 text-sm font-medium text-zinc-200 transition-colors"
+            >
+              <span>View Public Page</span>
+              <ExternalLink className="w-4 h-4 text-zinc-400" />
+            </Link>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left / Top: Live Interactive Preview */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 overflow-hidden shadow-2xl">
+              <div className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between bg-zinc-950">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Live Page Preview
+                </span>
+                <span className="text-xs text-zinc-500 font-mono">
+                  /{userInfo?.username || "creator"}
+                </span>
               </div>
 
-              <div className="grid grid-cols-1 gap-8">
-                {/* Main Form Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8">
-                  <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Hidden inputs to send removal flags */}
-                    <input
-                      type="hidden"
-                      name="profileRemoved"
-                      value={profileRemoved.toString()}
+              {/* Cover Preview */}
+              <div className="relative h-36 sm:h-40 w-full bg-zinc-800 overflow-hidden border-b border-white/10">
+                {coverPreviewUrl ? (
+                  <Image
+                    src={coverPreviewUrl}
+                    alt="Cover preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full bg-zinc-800" />
+                )}
+              </div>
+
+              {/* Avatar & Identity Preview */}
+              <div className="px-6 pb-7 -mt-12 relative flex flex-col items-center text-center">
+                <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-zinc-900 bg-zinc-800 shadow-xl">
+                  {profilePreviewUrl ? (
+                    <Image
+                      src={profilePreviewUrl}
+                      alt="Profile preview"
+                      fill
+                      className="object-cover rounded-full"
+                      unoptimized
                     />
-                    <input
-                      type="hidden"
-                      name="coverRemoved"
-                      value={coverRemoved.toString()}
-                    />
+                  ) : (
+                    <span className="text-zinc-500 text-xs flex items-center justify-center h-full">
+                      No image
+                    </span>
+                  )}
+                </div>
 
-                    {/* Profile Information Section */}
-                    <div className="space-y-6">
-                      <h2 className="text-2xl font-semibold text-white mb-6">
-                        Profile Information
-                      </h2>
+                <h3 className="mt-3 text-lg font-bold text-white flex items-center gap-1.5">
+                  {name && name !== "Enter your name"
+                    ? name
+                    : userInfo?.username || "Creator Name"}
+                  <CheckCircle2 className="w-4 h-4 text-red-500" />
+                </h3>
+                <p className="text-xs font-medium text-zinc-400">
+                  @{userInfo?.username || "username"}
+                </p>
+                <p className="mt-2 text-sm text-zinc-300 line-clamp-2 max-w-xs">
+                  {tagline && tagline !== "Enter your tagline"
+                    ? tagline
+                    : "Check out my content!"}
+                </p>
 
-                      {/* Name Input */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="name"
-                          className="text-sm font-medium text-gray-300"
-                        >
-                          Name
-                        </label>
-                        <input
-                          id="name"
-                          name="name"
-                          type="text"
-                          placeholder={name}
-                          className="w-full rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                          onChange={handleNameChange}
-                        />
-                      </div>
-
-                      {/* Tag line Input */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="tagline"
-                          className="text-sm font-medium text-gray-300"
-                        >
-                          Tagline
-                        </label>
-                        <input
-                          id="tagline"
-                          name="tagline"
-                          type="text"
-                          placeholder={tagline}
-                          className="w-full rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                          onChange={handleTaglineChange}
-                        />
-                      </div>
-
-                      {/* Profile Picture Section */}
-                      <div className="space-y-4">
-                        <label className="text-sm font-medium text-gray-300">
-                          Profile Picture
-                        </label>
-                        <div className="flex items-center gap-4">
-                          <input
-                            id="profile"
-                            name="profile"
-                            type="file"
-                            accept="image/*"
-                            className="w-full rounded-md border border-gray-700 bg-gray-800/50 text-white file:mr-3 file:rounded file:border-0 file:bg-gray-500 file:px-3 file:py-1 file:text-white hover:file:bg-black hover:cursor-pointer hover:file:cursor-pointer transition-colors"
-                            onChange={filePreview}
-                          />
-                          {profilePreviewUrl &&
-                            profilePreviewUrl !== "/profilePic.png" &&
-                            profilePreviewUrl !== "" && (
-                              <button
-                                type="button"
-                                onClick={() => removeFile("profile")}
-                                className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
-                              >
-                                Remove
-                              </button>
-                            )}
-                        </div>
-                        {/* Profile Preview (circular) */}
-                        <div className="mt-2">
-                          <div className="h-28 w-28 rounded-full overflow-hidden border border-gray-800 bg-gray-800/30 flex items-center justify-center relative">
-                            {profilePreviewUrl ? (
-                              <Image
-                                src={profilePreviewUrl}
-                                alt="Profile preview"
-                                fill
-                                className="object-cover rounded-full"
-                              />
-                            ) : (
-                              <span className="text-gray-500 text-xs px-2 text-center">
-                                No profile image selected
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Cover Picture Section */}
-                      <div className="space-y-4">
-                        <label className="text-sm font-medium text-gray-300">
-                          Cover Picture
-                        </label>
-                        <div className="flex items-center gap-4">
-                          <input
-                            id="cover"
-                            name="cover"
-                            type="file"
-                            accept="image/*"
-                            className="w-full rounded-md border border-gray-700 bg-gray-800/50 text-white file:mr-3 file:rounded file:border-0 file:bg-gray-500 file:px-3 file:py-1 file:text-white hover:file:bg-black hover:cursor-pointer hover:file:cursor-pointer transition-colors"
-                            onChange={filePreview}
-                          />
-                          {coverPreviewUrl &&
-                            coverPreviewUrl !== "/coverImage.jpg" &&
-                            coverPreviewUrl !== "" && (
-                              <button
-                                type="button"
-                                onClick={() => removeFile("cover")}
-                                className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
-                              >
-                                Remove
-                              </button>
-                            )}
-                        </div>
-                        {/* Cover Preview */}
-                        <div className="mt-2 w-full h-40 rounded-md border border-gray-800 bg-gray-800/30 flex items-center justify-center overflow-hidden relative">
-                          {coverPreviewUrl ? (
-                            <Image
-                              src={coverPreviewUrl}
-                              alt="Cover preview"
-                              fill
-                              className="object-cover rounded-md"
-                            />
-                          ) : (
-                            <span className="text-gray-500 text-xs">
-                              No cover image selected
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex flex-col items-center gap-4">
-                      <button
-                        type="submit"
-                        className="rounded-md bg-white px-8 py-3 text-lg font-semibold text-black cursor-pointer"
-                      >
-                        Update Profile
-                      </button>
-                    </div>
-                  </form>
+                <div className="mt-5 w-full pt-4 border-t border-white/10 flex items-center justify-around text-xs text-zinc-400">
+                  <div>
+                    <p className="font-bold text-white text-sm">🥤 $10</p>
+                    <p>1 Coke</p>
+                  </div>
+                  <div className="h-6 w-px bg-white/10" />
+                  <div>
+                    <p className="font-bold text-white text-sm">🥤 $50</p>
+                    <p>5 Cokes</p>
+                  </div>
+                  <div className="h-6 w-px bg-white/10" />
+                  <div>
+                    <p className="font-bold text-white text-sm">🥤 $100</p>
+                    <p>10 Cokes</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Right: Main Form Card */}
+          <div className="lg:col-span-7">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl">
+              <form onSubmit={handleSubmit} className="space-y-7">
+                {/* Hidden inputs to send removal flags */}
+                <input
+                  type="hidden"
+                  name="profileRemoved"
+                  value={profileRemoved.toString()}
+                />
+                <input
+                  type="hidden"
+                  name="coverRemoved"
+                  value={coverRemoved.toString()}
+                />
+
+                <div className="border-b border-white/10 pb-4">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <User className="w-5 h-5 text-red-500" />
+                    Profile Information
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Changes are previewed live and saved to your public creator
+                    profile.
+                  </p>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Name Input */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="name"
+                      className="text-xs font-semibold uppercase tracking-wider text-zinc-300 block"
+                    >
+                      Display Name
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder={name}
+                      className="w-full rounded-xl border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition-all"
+                      onChange={handleNameChange}
+                    />
+                  </div>
+
+                  {/* Tagline Input */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="tagline"
+                      className="text-xs font-semibold uppercase tracking-wider text-zinc-300 block"
+                    >
+                      Creator Tagline / Bio
+                    </label>
+                    <input
+                      id="tagline"
+                      name="tagline"
+                      type="text"
+                      placeholder={tagline}
+                      className="w-full rounded-xl border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition-all"
+                      onChange={handleTaglineChange}
+                    />
+                  </div>
+
+                  {/* Profile Picture Section */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="profile"
+                        className="text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <Camera className="w-4 h-4 text-red-400" />
+                        Profile Avatar
+                      </label>
+                      {profilePreviewUrl &&
+                        profilePreviewUrl !== "/profilePic.png" &&
+                        profilePreviewUrl !== "" && (
+                          <button
+                            type="button"
+                            onClick={() => removeFile("profile")}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Reset to default
+                          </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-4 rounded-2xl bg-zinc-950 border border-white/10 p-4">
+                      <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-white/15 bg-zinc-900 shrink-0 relative">
+                        {profilePreviewUrl ? (
+                          <Image
+                            src={profilePreviewUrl}
+                            alt="Profile preview"
+                            fill
+                            className="object-cover rounded-full"
+                            unoptimized
+                          />
+                        ) : (
+                          <span className="text-zinc-500 text-xs flex items-center justify-center h-full text-center px-2">
+                            No image
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 w-full">
+                        <input
+                          id="profile"
+                          name="profile"
+                          type="file"
+                          accept="image/*"
+                          className="w-full text-sm text-zinc-400 file:mr-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:px-4 file:py-2.5 file:text-xs file:font-semibold file:text-white hover:file:bg-red-600 file:transition-colors hover:cursor-pointer file:cursor-pointer"
+                          onChange={filePreview}
+                        />
+                        <p className="text-[11px] text-zinc-500 mt-2">
+                          Recommended: Square JPG, PNG, or GIF (at least
+                          400×400px).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cover Picture Section */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="cover"
+                        className="text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <ImagePlus className="w-4 h-4 text-red-400" />
+                        Cover Banner
+                      </label>
+                      {coverPreviewUrl &&
+                        coverPreviewUrl !== "/coverImage.jpg" &&
+                        coverPreviewUrl !== "" && (
+                          <button
+                            type="button"
+                            onClick={() => removeFile("cover")}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Reset to default
+                          </button>
+                        )}
+                    </div>
+
+                    <div className="rounded-2xl bg-zinc-950 border border-white/10 p-4 space-y-3">
+                      <div className="w-full h-36 rounded-xl border border-white/10 bg-zinc-900 flex items-center justify-center overflow-hidden relative">
+                        {coverPreviewUrl ? (
+                          <Image
+                            src={coverPreviewUrl}
+                            alt="Cover preview"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <span className="text-zinc-500 text-xs">
+                            No cover image selected
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        id="cover"
+                        name="cover"
+                        type="file"
+                        accept="image/*"
+                        className="w-full text-sm text-zinc-400 file:mr-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:px-4 file:py-2.5 file:text-xs file:font-semibold file:text-white hover:file:bg-red-600 file:transition-colors hover:cursor-pointer file:cursor-pointer"
+                        onChange={filePreview}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-4 border-t border-white/10 flex items-center justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-full bg-red-600 hover:bg-red-500 px-8 py-3.5 text-sm font-bold text-white transition-colors cursor-pointer disabled:opacity-60"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving Changes...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Update Profile
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-      </ProtectedRoute>
-    </>
+      </div>
+    </ProtectedRoute>
   );
 }

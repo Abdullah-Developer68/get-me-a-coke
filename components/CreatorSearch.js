@@ -3,11 +3,39 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import {
+  Search,
+  Sparkles,
+  ChevronRight,
+  Loader2,
+  X,
+  Flame,
+} from "lucide-react";
+
+const FALLBACK_POPULAR_CREATORS = [
+  {
+    username: "mrbeast",
+    name: "MrBeast",
+    profilePic: "/mrbeast-profile.jpg",
+  },
+  {
+    username: "chai-aur-code",
+    name: "Chai aur Code",
+    profilePic: "/chai-aur-code-profile.jpg",
+  },
+  {
+    username: "code-with-harry",
+    name: "CodeWithHarry",
+    profilePic: "/code-with-harry-profile.jpg",
+  },
+];
 
 export default function CreatorSearch({ compact = false }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState([]);
-  const [popularCreators, setPopularCreators] = useState([]);
+  const [popularCreators, setPopularCreators] = useState(
+    FALLBACK_POPULAR_CREATORS
+  );
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingPopular, setIsLoadingPopular] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -23,7 +51,9 @@ export default function CreatorSearch({ compact = false }) {
         const response = await fetch("/api/search/creators/popular");
         if (response.ok) {
           const data = await response.json();
-          setPopularCreators(data);
+          if (Array.isArray(data) && data.length > 0) {
+            setPopularCreators(data);
+          }
         }
       } catch (error) {
         console.error("Error fetching popular creators:", error);
@@ -39,13 +69,12 @@ export default function CreatorSearch({ compact = false }) {
   useEffect(() => {
     const delayTimer = setTimeout(() => {
       if (searchTerm.trim().length > 1) {
-        // Only search if 2+ characters
         performSearch(searchTerm);
       } else {
         setResults([]);
         setShowDropdown(false);
       }
-    }, 300); // 300ms delay
+    }, 300);
 
     return () => clearTimeout(delayTimer);
   }, [searchTerm]);
@@ -64,28 +93,32 @@ export default function CreatorSearch({ compact = false }) {
 
   const performSearch = async (query) => {
     setIsSearching(true);
-    console.log("🔍 Searching for:", query);
     try {
       const response = await fetch(
         `/api/search/creators?query=${encodeURIComponent(query)}`
       );
-      console.log("📡 Response status:", response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log("Search results:", data);
-        console.log("Results count:", data.length);
-        setResults(data);
-        setShowDropdown(true); // Always show dropdown after search completes
-        console.log("Show dropdown:", true);
+        setResults(Array.isArray(data) ? data : []);
+        setShowDropdown(true);
       } else {
-        console.error("Search failed:", response.statusText);
-        setResults([]);
-        setShowDropdown(true); // Show dropdown to display "no results"
+        const filtered = FALLBACK_POPULAR_CREATORS.filter(
+          (c) =>
+            c.username.toLowerCase().includes(query.toLowerCase()) ||
+            c.name.toLowerCase().includes(query.toLowerCase())
+        );
+        setResults(filtered);
+        setShowDropdown(true);
       }
     } catch (error) {
       console.error("Search error:", error);
-      setResults([]);
-      setShowDropdown(true); // Show dropdown to display "no results"
+      const filtered = FALLBACK_POPULAR_CREATORS.filter(
+        (c) =>
+          c.username.toLowerCase().includes(query.toLowerCase()) ||
+          c.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setResults(filtered);
+      setShowDropdown(true);
     } finally {
       setIsSearching(false);
     }
@@ -94,7 +127,6 @@ export default function CreatorSearch({ compact = false }) {
   const handleSelectCreator = (username) => {
     setShowDropdown(false);
     setShowSuggestions(false);
-    // Reset the cached user images to defaults before navigating for better UX
     localStorage.setItem("profilePic", "/profilePic.png");
     localStorage.setItem("coverPic", "/coverImage.jpg");
     router.push(`/${username}`);
@@ -119,168 +151,139 @@ export default function CreatorSearch({ compact = false }) {
       className={
         compact
           ? "flex w-full justify-center relative"
-          : "flex w-full sm:w-5/6 md:w-3/4 lg:w-2/3 xl:w-1/2 justify-center mt-6 md:mt-10 relative px-4 sm:px-0"
+          : "flex w-full max-w-xl justify-center mt-6 relative"
       }
       ref={dropdownRef}
     >
-      <input
-        type="text"
-        placeholder={
-          compact
-            ? "Search creators..."
-            : "Search for your creator you wish to support!"
-        }
-        className={
-          compact
-            ? "rounded-full px-4 py-2 bg-gray-100 w-full text-black placeholder:text-gray-500 text-sm hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 border border-gray-300"
-            : "rounded-full p-2 sm:p-3 bg-white w-full text-black placeholder:text-black placeholder:italic text-center text-sm sm:text-base hover:bg-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-        }
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          if (e.target.value.trim().length === 0) {
-            setShowSuggestions(true);
-            setShowDropdown(false);
-          } else {
-            setShowSuggestions(false);
-          }
-        }}
-        onFocus={handleFocus}
-        onKeyDown={handleKeyDown}
-      />
-
-      {/* Search/Loading Icon */}
-      {isSearching && (
-        <div
-          className={
-            compact ? "absolute right-3 top-2" : "absolute right-5 top-3"
-          }
-        >
-          <svg
+      <div className="relative w-full group">
+        <div className="relative flex items-center w-full">
+          <Search
+            className={`absolute left-4 text-zinc-400 group-focus-within:text-red-400 transition-colors pointer-events-none ${
+              compact ? "w-4 h-4" : "w-5 h-5"
+            }`}
+          />
+          <input
+            type="text"
+            placeholder={
+              compact
+                ? "Search creators (@mrbeast, @chai-aur-code)..."
+                : "Search a creator you want to support (e.g., mrbeast)..."
+            }
             className={
               compact
-                ? "animate-spin h-5 w-5 text-gray-600"
-                : "animate-spin h-6 w-6 text-gray-600"
+                ? "rounded-full pl-10 pr-9 py-2 bg-zinc-900 w-full text-zinc-100 placeholder:text-zinc-500 text-sm hover:bg-zinc-800/80 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50 border border-white/10"
+                : "rounded-2xl pl-12 pr-12 py-4 bg-zinc-900 w-full text-white placeholder:text-zinc-400 text-sm sm:text-base shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-red-500 border border-white/15 hover:border-white/25"
             }
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        </div>
-      )}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              if (e.target.value.trim().length === 0) {
+                setShowSuggestions(true);
+                setShowDropdown(false);
+              } else {
+                setShowSuggestions(false);
+              }
+            }}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+          />
 
-      {/* Dropdown Modal with Results */}
-      {console.log(
-        "🎨 Rendering - showDropdown:",
-        showDropdown,
-        "results:",
-        results.length
-      )}
+          {/* Clear or Loading Icon */}
+          <div className="absolute right-3.5 flex items-center gap-1.5">
+            {isSearching ? (
+              <Loader2
+                className={`animate-spin text-red-500 ${
+                  compact ? "h-4 w-4" : "h-5 w-5"
+                }`}
+              />
+            ) : searchTerm ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setResults([]);
+                  setShowDropdown(false);
+                  setShowSuggestions(true);
+                }}
+                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            ) : (
+              !compact && (
+                <span className="hidden sm:inline-flex items-center gap-1 rounded-lg bg-zinc-800 border border-white/10 px-2.5 py-1 text-xs font-medium text-zinc-400">
+                  <Sparkles className="w-3 h-3 text-red-400" />
+                  Explore
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Dropdown Modal with Search Results */}
       {showDropdown && (
         <div
           className={`absolute ${
-            compact ? "top-11" : "top-14"
-          } w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200`}
+            compact ? "top-12" : "top-16"
+          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
         >
           {isSearching && results.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              <svg
-                className="animate-spin h-8 w-8 mx-auto mb-2 text-red-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Searching...
+            <div className="p-6 text-center text-zinc-400">
+              <Loader2 className="animate-spin h-7 w-7 mx-auto mb-2 text-red-500" />
+              <p className="text-sm font-medium">Searching creators...</p>
             </div>
           ) : results.length > 0 ? (
             <>
-              <div className="p-2 bg-gray-50 border-b text-xs text-gray-500 font-semibold">
-                Found {results.length} creator{results.length !== 1 ? "s" : ""}
+              <div className="px-4 py-2.5 bg-zinc-950 text-xs text-zinc-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+                <span>
+                  Found {results.length} creator
+                  {results.length !== 1 ? "s" : ""}
+                </span>
+                <span className="text-[11px] text-zinc-500">
+                  Press Enter to select
+                </span>
               </div>
-              {results.map((creator, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleSelectCreator(creator.username)}
-                  className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-red-50 cursor-pointer border-b last:border-b-0 transition-colors"
-                >
-                  <Image
-                    src={creator.profilePic || "/burger-dance.gif"}
-                    alt={creator.username}
-                    width={40}
-                    height={40}
-                    className="rounded-full border-2 border-gray-200 w-10 h-10 sm:w-12 sm:h-12"
-                    unoptimized
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-black text-sm sm:text-base lg:text-lg truncate">
-                      @{creator.username}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600 truncate">
-                      {creator.name}
-                    </p>
-                  </div>
-                  <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <div className="divide-y divide-white/5">
+                {results.map((creator, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSelectCreator(creator.username)}
+                    className="flex items-center gap-3.5 px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
+                    <Image
+                      src={creator.profilePic || "/burger-dance.gif"}
+                      alt={creator.username}
+                      width={44}
+                      height={44}
+                      className="rounded-full border border-white/15 w-11 h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
+                      unoptimized
                     />
-                  </svg>
-                </div>
-              ))}
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="font-semibold text-white text-sm sm:text-base truncate group-hover:text-red-400 transition-colors">
+                        @{creator.username}
+                      </p>
+                      <p className="text-xs text-zinc-400 truncate">
+                        {creator.name}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors">
+                      Support
+                      <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </div>
+                ))}
+              </div>
             </>
           ) : (
-            <div className="p-6 text-center">
-              <svg
-                className="w-12 h-12 mx-auto mb-2 text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <p className="text-gray-500 font-medium">No creators found</p>
-              <p className="text-sm text-gray-400 mt-1">
-                Try a different search term
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center mx-auto mb-3">
+                <Search className="w-5 h-5 text-zinc-400" />
+              </div>
+              <p className="text-zinc-200 font-semibold">No creators found</p>
+              <p className="text-xs text-zinc-400 mt-1">
+                Try searching for @mrbeast, @chai-aur-code, or @code-with-harry
               </p>
             </div>
           )}
@@ -291,83 +294,51 @@ export default function CreatorSearch({ compact = false }) {
       {showSuggestions && !showDropdown && (
         <div
           className={`absolute ${
-            compact ? "top-11" : "top-14"
-          } w-full bg-white rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50 border border-gray-200`}
+            compact ? "top-12" : "top-16"
+          } w-full bg-zinc-900 rounded-2xl shadow-2xl max-h-96 overflow-y-auto z-50 border border-white/15 divide-y divide-white/10`}
         >
-          <div className="p-2 bg-linear-to-r from-red-50 to-orange-50 border-b text-xs text-gray-600 font-semibold flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-red-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
+          <div className="px-4 py-2.5 bg-zinc-950 text-xs text-zinc-300 font-semibold uppercase tracking-wider flex items-center gap-2">
+            <Flame className="w-3.5 h-3.5 text-red-500 fill-red-500" />
             Popular Creators
           </div>
-          {isLoadingPopular ? (
-            <div className="p-4 text-center text-gray-500">
-              <svg
-                className="animate-spin h-6 w-6 mx-auto mb-2 text-red-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Loading...
+          {isLoadingPopular && popularCreators.length === 0 ? (
+            <div className="p-6 text-center text-zinc-400">
+              <Loader2 className="animate-spin h-6 w-6 mx-auto mb-2 text-red-500" />
+              <p className="text-xs">Loading popular creators...</p>
             </div>
           ) : popularCreators.length > 0 ? (
-            popularCreators.map((creator, index) => (
-              <div
-                key={index}
-                onClick={() => handleSelectCreator(creator.username)}
-                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-red-50 cursor-pointer border-b last:border-b-0 transition-colors"
-              >
-                <Image
-                  src={creator.profilePic || "/profilePic.png"}
-                  alt={creator.username}
-                  width={40}
-                  height={40}
-                  className="rounded-full border-2 border-gray-200 w-10 h-10 sm:w-12 sm:h-12"
-                  unoptimized
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-black text-sm sm:text-base lg:text-lg truncate">
-                    @{creator.username}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">
-                    {creator.name}
-                  </p>
-                </div>
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div className="divide-y divide-white/5">
+              {popularCreators.map((creator, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleSelectCreator(creator.username)}
+                  className="flex items-center gap-3.5 px-4 py-3 hover:bg-zinc-800/80 cursor-pointer transition-colors group"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
+                  <Image
+                    src={creator.profilePic || "/profilePic.png"}
+                    alt={creator.username}
+                    width={44}
+                    height={44}
+                    className="rounded-full border border-white/15 w-11 h-11 object-cover shrink-0 group-hover:border-red-500/50 transition-colors"
+                    unoptimized
                   />
-                </svg>
-              </div>
-            ))
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="font-semibold text-white text-sm sm:text-base truncate group-hover:text-red-400 transition-colors">
+                      @{creator.username}
+                    </p>
+                    <p className="text-xs text-zinc-400 truncate">
+                      {creator.name}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-red-400 transition-colors">
+                    View Page
+                    <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-6 text-center text-zinc-400 text-sm">
               No popular creators found
             </div>
           )}

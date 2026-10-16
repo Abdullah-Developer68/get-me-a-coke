@@ -7,13 +7,44 @@ import { useSelector, useDispatch } from "react-redux";
 import { tellToFetchData } from "@/redux/slices/userSlice";
 import { fetchUpdatedUserInfo } from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Copy, Check } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Trophy,
+  Heart,
+  Sparkles,
+  Users,
+  DollarSign,
+  Gift,
+  MessageSquareHeart,
+  ShieldCheck,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
 
+const PRESET_PROFILES = {
+  mrbeast: {
+    profilePic: "/mrbeast-profile.jpg",
+    tagline: "Pushing the boundaries of creator entertainment & philanthropy!",
+  },
+  "chai-aur-code": {
+    profilePic: "/chai-aur-code-profile.jpg",
+    tagline: "Sipping Chai & building production-grade software together.",
+  },
+  "code-with-harry": {
+    profilePic: "/code-with-harry-profile.jpg",
+    tagline: "Making coding simple, practical, and accessible for everyone.",
+  },
+};
+
+const QUICK_TIERS = [
+  { amount: 10, label: "1 Coke", badge: "Starter" },
+  { amount: 50, label: "5 Cokes", badge: "Popular" },
+  { amount: 100, label: "10 Cokes", badge: "Superfan" },
+];
+
 const Username = () => {
-  // This is used to extract the URL parameters and a route/page can accept url paramters if the file is made using [filename]
-  // useParamas has change in Next.js 15 check docs for more info.
   const routeParams = useParams();
   const dispatch = useDispatch();
   const username =
@@ -42,13 +73,18 @@ const Username = () => {
   const [copied, setCopied] = useState(false);
   const [profileUrl, setProfileUrl] = useState("");
 
-  const [profile, setProfile] = useState("/profilePic.png");
+  const [profile, setProfile] = useState(
+    PRESET_PROFILES[username]?.profilePic || "/profilePic.png"
+  );
   const [cover, setCover] = useState("/coverImage.jpg");
   const [tagline, setTagline] = useState(() => {
+    if (PRESET_PROFILES[username]?.tagline) {
+      return PRESET_PROFILES[username].tagline;
+    }
     try {
-      const userInfo = localStorage.getItem("userInfo");
-      return userInfo
-        ? JSON.parse(userInfo).tagline || "Check out my content!"
+      const storedUserInfo = localStorage.getItem("userInfo");
+      return storedUserInfo
+        ? JSON.parse(storedUserInfo).tagline || "Check out my content!"
         : "Check out my content!";
     } catch {
       return "Check out my content!";
@@ -60,7 +96,6 @@ const Username = () => {
     const cachedProfile = localStorage.getItem("profilePic");
     const cachedCover = localStorage.getItem("coverPic");
 
-    // Only use cached values if they are valid (not null, undefined, or empty strings)
     if (
       cachedProfile &&
       cachedProfile !== "null" &&
@@ -72,32 +107,34 @@ const Username = () => {
       setCover(cachedCover);
     }
 
-    // Set the profile URL on client side
     setProfileUrl(window.location.href);
   }, []);
 
-  const fetchUserInfo = async (username) => {
-    const res = await fetchUpdatedUserInfo(username);
+  const fetchUserInfo = async (targetUsername) => {
+    const res = await fetchUpdatedUserInfo(targetUsername);
     if (res) {
-      // tell the isFetch to disbable for the next time until the profile is updated again
       dispatch(tellToFetchData(false));
-      const profilePic = res.profilePic || "/profilePic.png";
+      const profilePic =
+        res.profilePic ||
+        PRESET_PROFILES[targetUsername]?.profilePic ||
+        "/profilePic.png";
       const coverPic = res.coverPic || "/coverImage.jpg";
-      const userTagline = res.tagline || "Check out my content!";
+      const userTagline =
+        res.tagline ||
+        PRESET_PROFILES[targetUsername]?.tagline ||
+        "Check out my content!";
       setProfile(profilePic);
       setCover(coverPic);
       setTagline(userTagline);
-      // Save data on localStorage for later use without extra fetches
       localStorage.setItem("profilePic", profilePic);
       localStorage.setItem("coverPic", coverPic);
-    } else {
-      return;
+    } else if (PRESET_PROFILES[targetUsername]) {
+      setProfile(PRESET_PROFILES[targetUsername].profilePic);
+      setTagline(PRESET_PROFILES[targetUsername].tagline);
     }
   };
 
-  // This gets the user info whenever the username in the url changes
   useEffect(() => {
-    // If the URL username matches the logged-in user's username, use userInfo instead of fetching
     if (userInfo?.username === username) {
       setProfile(userInfo.profilePic || "/profilePic.png");
       setCover(userInfo.coverPic || "/coverImage.jpg");
@@ -109,12 +146,10 @@ const Username = () => {
       );
       localStorage.setItem("coverPic", userInfo.coverPic || "/coverImage.jpg");
     } else {
-      // Only fetch if it's a different creator's page
       fetchUserInfo(username);
     }
   }, [username, userInfo]);
 
-  // This sends a req to the checkout api route for donating money via stripe
   const startCheckout = async (amt) => {
     if (!amt) return;
     setIsLoading(true);
@@ -127,7 +162,7 @@ const Username = () => {
           name: supporterName,
           message: supporterMessage,
           username,
-          email: userInfo.email,
+          email: userInfo?.email,
         }),
       });
 
@@ -135,47 +170,51 @@ const Username = () => {
       if (!res.ok) throw new Error(data?.error || "Failed to create session");
 
       if (data?.url) {
-        // stripe returns a url for its checkout page and we are redirecting to it.
-        // For performance we often use useNavigate hook but this is an external page and not a part of the application so for this full browser navigation is required.
         window.location.href = data.url;
       }
     } catch (err) {
-      alert(err?.message || "Something went wrong");
+      toast.error(err?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
 
   const getRecentPaymentInfo = useCallback(async () => {
-    // GET requests shouldn't have a body. Send username as a query param instead.
-    const res = await fetch(
-      `/api/payment?username=${encodeURIComponent(username)}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const res = await fetch(
+        `/api/payment?username=${encodeURIComponent(username)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setPayData(Array.isArray(data) ? data : []);
       }
-    );
-
-    const data = await res.json();
-    setPayData(Array.isArray(data) ? data : []);
-    // log the response data (not the state variable immediately after setState)
-    // console.log("Recent payment info:", data);
+    } catch (err) {
+      console.error("Failed to fetch recent payments:", err);
+    }
   }, [username]);
 
   const getStats = useCallback(async () => {
-    const res = await fetch(
-      `/api/payment/stats?username=${encodeURIComponent(username)}`
-    );
-    const data = await res.json();
-    // console.log("Payment stats:", data);
-
-    setTotalAmount(data?.totalAmount || 0);
-    setAverageAmount(data?.averageAmount || 0);
-    setUniqueSupporters(data?.uniqueSupporters || 0);
-    setTopSupporters(data?.topSupporters || []);
-    setTotalDonations(data?.count || 0);
+    try {
+      const res = await fetch(
+        `/api/payment/stats?username=${encodeURIComponent(username)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setTotalAmount(data?.totalAmount || 0);
+        setAverageAmount(data?.averageAmount || 0);
+        setUniqueSupporters(data?.uniqueSupporters || 0);
+        setTopSupporters(data?.topSupporters || []);
+        setTotalDonations(data?.count || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch payment stats:", err);
+    }
   }, [username]);
 
   useEffect(() => {
@@ -186,7 +225,7 @@ const Username = () => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(profileUrl);
-      toast.success("Coke Url copied to clipboard!");
+      toast.success("Coke URL copied to clipboard!");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -195,228 +234,410 @@ const Username = () => {
   };
 
   return (
-    <>
-      <ProtectedRoute>
-        <div className="flex flex-col items-center w-full mt-0 pt-0">
-          <div className="flex flex-col items-center relative w-full mt-0 pt-0 min-h-[400px] sm:min-h-[500px] md:min-h-[608px]">
-            <div
-              className="cover relative w-full overflow-hidden rounded-b-2xl bg-gray-900/60 h-[250px] sm:h-[350px] md:h-[480px]"
-              aria-busy={isSessionLoading}
-            >
-              {cover ? (
-                // Width and Height attributes don't apply these. They just inform Next.js to optimize the image for this size
-                <Image
-                  src={cover}
-                  alt="cover page"
-                  width={1920}
-                  height={480}
-                  priority
-                  className="w-full h-full object-cover object-center block"
-                  sizes="100vw"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-800 animate-pulse" />
-              )}
-            </div>
-            <div className="profilePic absolute flex flex-col -bottom-28 sm:-bottom-24 md:-bottom-22 text-white justify-center items-center gap-2">
-              {profile ? (
-                <Image
-                  src={profile}
-                  alt="profile pic"
-                  width={128}
-                  height={128}
-                  priority
-                  sizes="128px"
-                  className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-cover rounded-full border-4 border-gray-900"
-                />
-              ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-700 animate-pulse" />
-              )}
-              <span className="flex flex-col gap-1 sm:gap-2 items-center justify-center text-center px-4">
-                <p className="text-lg sm:text-xl font-semibold">{username}</p>
-                <p className="text-sm sm:text-base text-gray-300">
-                  {isSessionLoading ? "Loading profile..." : tagline}
-                </p>
-
-                <span className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center text-xs sm:text-sm">
-                  <p>{totalDonations} Donations</p>
-                  <span className="hidden sm:inline">·</span>
-                  <p>{uniqueSupporters} supporters</p>
-                  <span className="hidden sm:inline">·</span>
-                  <p>${totalAmount / 100}/release</p>
-                </span>
-              </span>
-              <div className="flex items-center gap-2 bg-gray-800/80 backdrop-blur-sm rounded-full px-3 sm:px-4 py-2 border border-gray-600/50 shadow-lg max-w-[90vw]">
-                <span className="text-sm">🔗</span>
-                <span className="text-gray-300 text-xs sm:text-sm font-medium truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">
-                  {profileUrl}
-                </span>
-                <button
-                  onClick={copyToClipboard}
-                  className="flex items-center justify-center p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-all duration-200 border border-gray-500/50 hover:border-gray-400/50"
-                  title={copied ? "Copied!" : "Copy link"}
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-300" />
-                  )}
-                </button>
-              </div>
-            </div>
+    <ProtectedRoute>
+      <div className="flex flex-col items-center w-full pb-20">
+        {/* HERO COVER & CREATOR HEADER */}
+        <div className="relative w-full">
+          {/* Cover Image Container */}
+          <div
+            className="relative w-full h-[240px] sm:h-[320px] md:h-[400px] overflow-hidden bg-zinc-900 border-b border-white/10"
+            aria-busy={isSessionLoading}
+          >
+            {cover ? (
+              <Image
+                src={cover}
+                alt="Creator cover banner"
+                width={1920}
+                height={480}
+                priority
+                className="w-full h-full object-cover object-center"
+                sizes="100vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-800 animate-pulse" />
+            )}
           </div>
 
-          {/*  supporters and make payments */}
-          <div className="flex flex-col md:flex-row justify-center items-stretch gap-4 sm:gap-6 mt-36 sm:mt-40 md:mt-44 mb-10 w-[95%] sm:w-[90%] md:w-4/5 max-w-5xl text-white px-2 sm:px-0">
-            {/* Left Column: Supporters & Donations */}
-            <div className="flex flex-col gap-4 w-full md:w-1/2">
-              {/* Top 3 Supporters */}
-              <div className="w-full rounded-lg bg-gray-900/70 border border-gray-700 p-4 sm:p-5 min-h-[150px]">
-                <h3 className="text-base sm:text-lg font-semibold mb-4">
-                  Top 3 Supporters
-                </h3>
-                {topSupporters.length > 0 ? (
-                  <ul className="space-y-3 text-gray-200 text-sm">
-                    {/* Loop over to display the Top supporters */}
-                    {topSupporters.map((s, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-ful text-xs shrink-0">
-                          {idx === 0 ? (
-                            <Image
-                              src="/medal-1.png"
-                              alt="1st place medal"
-                              width={24}
-                              height={24}
-                              className="h-5 w-5 sm:h-6 sm:w-6"
-                            />
-                          ) : idx === 1 ? (
-                            <Image
-                              src="/medal-2.png"
-                              alt="2nd place medal"
-                              width={24}
-                              height={24}
-                              className="h-5 w-5 sm:h-6 sm:w-6"
-                            />
-                          ) : (
-                            <Image
-                              src="/medal-3.png"
-                              alt="3rd place medal"
-                              width={24}
-                              height={24}
-                              className="h-5 w-5 sm:h-6 sm:w-6"
-                            />
-                          )}
-                        </span>
+          {/* Creator Identity Card Overlapping Cover */}
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 sm:-mt-24 relative z-10">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl">
+              <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
+                {/* Avatar + Name + Tagline */}
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-5 text-center md:text-left">
+                  <div className="relative -mt-16 md:-mt-14 shrink-0">
+                    {profile ? (
+                      <Image
+                        src={profile}
+                        alt={username}
+                        width={128}
+                        height={128}
+                        priority
+                        sizes="128px"
+                        className="relative w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-zinc-950 ring-2 ring-red-500/40 bg-zinc-900 shadow-2xl"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="relative w-28 h-28 rounded-full bg-zinc-800 animate-pulse" />
+                    )}
+                  </div>
 
-                        <span className="break-words">
-                          {s.name} with {s.totalAmount / 100}$ donations!
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-6 text-gray-500">
-                    <span className="text-3xl mb-2">🏆</span>
-                    <p className="text-sm text-center">No supporters yet</p>
-                    <p className="text-xs text-gray-600 text-center">
-                      Be the first to support!
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                        @{username}
+                      </h1>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-xs font-semibold text-red-400">
+                        <Sparkles className="w-3 h-3" />
+                        Creator
+                      </span>
+                    </div>
+                    <p className="text-sm sm:text-base text-zinc-300 max-w-xl">
+                      {isSessionLoading ? "Loading profile..." : tagline}
                     </p>
                   </div>
-                )}
+                </div>
+
+                {/* Copy Profile Link Pill */}
+                <div className="flex items-center gap-2 rounded-full bg-zinc-950 border border-white/15 pl-4 pr-2 py-1.5 max-w-full">
+                  <span className="text-xs text-zinc-400 truncate max-w-[180px] sm:max-w-[240px] font-mono">
+                    {profileUrl}
+                  </span>
+                  <button
+                    onClick={copyToClipboard}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 hover:bg-red-600 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:text-white transition-colors cursor-pointer shrink-0"
+                    title={copied ? "Copied!" : "Copy link"}
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Share</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              {/* Recent Donations */}
-              <div className="w-full rounded-lg bg-gray-900/70 border border-gray-700 p-4 sm:p-5 min-h-[150px]">
-                <h3 className="text-base sm:text-lg font-semibold mb-4">
-                  Recent Donations
-                </h3>
-                {payData.length > 0 ? (
-                  <ul className="space-y-3 text-gray-200 text-sm">
-                    {/* Loop over to display the most recent supporters */}
-                    {payData.map((s, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span
-                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-800 border border-gray-700 text-base leading-none pointer-events-none select-none"
-                          aria-hidden="true"
-                        >
-                          🥤
-                        </span>
-                        <span className="break-words">
-                          <span className="font-medium">{s.name}</span> donated
-                          <span className="font-semibold">
-                            {" "}
-                            {/* amount is in cents so convert it to dollars */}
-                            {s.amount / 100} $
-                          </span>{" "}
-                          with a message &quot;{s.message}&quot;
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-6 text-gray-500">
-                    <span className="text-3xl mb-2">🥤</span>
-                    <p className="text-sm text-center">No donations yet</p>
-                    <p className="text-xs text-gray-600 text-center">
-                      Be the first to buy a coke!
+              {/* Creator Stats Bar */}
+              <div className="mt-7 pt-6 border-t border-white/10 grid grid-cols-3 gap-4">
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-red-500/10 border border-red-500/20 items-center justify-center text-red-400 shrink-0">
+                    <Gift className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                      {totalDonations}
+                    </p>
+                    <p className="text-xs text-zinc-400 font-medium">
+                      Donations
                     </p>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
 
-            {/* Right Column: Make a Payment */}
-            <div className="w-full md:w-1/2 rounded-lg bg-gray-900/70 border border-gray-700 p-4 sm:p-5">
-              <h3 className="text-base sm:text-lg font-semibold mb-4">
-                Make a Payment
-              </h3>
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Enter Name"
-                  value={supporterName}
-                  onChange={(e) => setSupporterName(e.target.value)}
-                  className="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-2 text-sm placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Enter Message"
-                  value={supporterMessage}
-                  onChange={(e) => setSupporterMessage(e.target.value)}
-                  className="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-2 text-sm placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-500"
-                />
-                <input
-                  type="number"
-                  placeholder="Enter Amount"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-2 text-sm placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-500"
-                />
-                <button
-                  disabled={isLoading || !amount}
-                  onClick={() => startCheckout(Number(amount))}
-                  className="w-full rounded-md bg-linear-to-r from-gray-400 to-gray-600 text-black py-2 font-medium disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? "Processing..." : "Pay"}
-                </button>
-                <div className="flex gap-2">
-                  {[10, 50, 100].map((amt) => (
-                    <button
-                      key={amt}
-                      onClick={() => startCheckout(amt)}
-                      disabled={isLoading}
-                      className="rounded-md bg-gray-800 border border-gray-700 px-3 py-1 text-xs text-gray-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      Pay {amt}$
-                    </button>
-                  ))}
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 items-center justify-center text-amber-400 shrink-0">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                      {uniqueSupporters}
+                    </p>
+                    <p className="text-xs text-zinc-400 font-medium">
+                      Supporters
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center text-emerald-400 shrink-0">
+                    <DollarSign className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-extrabold text-white">
+                      ${totalAmount / 100}
+                    </p>
+                    <p className="text-xs text-zinc-400 font-medium">
+                      Total Raised
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </ProtectedRoute>
-    </>
+
+        {/* MAIN 2-COLUMN CONTENT: LEADERBOARD + DONATION CHECKOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mt-8 w-full max-w-5xl px-4 sm:px-6">
+          {/* Left Column: Top Supporters & Recent Activity */}
+          <div className="lg:col-span-6 flex flex-col gap-6">
+            {/* Top 3 Supporters Card */}
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-400" />
+                  Top 3 Supporters
+                </h3>
+                <span className="text-xs font-medium text-zinc-400">
+                  All-Time Leaderboard
+                </span>
+              </div>
+
+              {topSupporters.length > 0 ? (
+                <ul className="space-y-3">
+                  {topSupporters.map((s, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-center justify-between gap-3 rounded-2xl bg-zinc-950 border border-white/10 px-4 py-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 border border-white/10 shrink-0">
+                          <Image
+                            src={
+                              idx === 0
+                                ? "/medal-1.png"
+                                : idx === 1
+                                ? "/medal-2.png"
+                                : "/medal-3.png"
+                            }
+                            alt={`Rank ${idx + 1}`}
+                            width={22}
+                            height={22}
+                            className="h-5 w-5"
+                          />
+                        </span>
+                        <span className="font-semibold text-white text-sm truncate">
+                          {s.name || "Anonymous Fan"}
+                        </span>
+                      </div>
+                      <span className="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-bold text-amber-300 shrink-0">
+                        ${s.totalAmount / 100}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                  <span className="text-3xl mb-2">🏆</span>
+                  <p className="text-sm font-semibold text-zinc-300">
+                    No supporters on the podium yet
+                  </p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Buy the first Coke to claim the #1 spot!
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Donations Card */}
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquareHeart className="w-5 h-5 text-red-400" />
+                  Recent Donations
+                </h3>
+                <span className="text-xs font-medium text-zinc-400">
+                  Live Feed
+                </span>
+              </div>
+
+              {payData.length > 0 ? (
+                <ul className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+                  {payData.map((s, idx) => (
+                    <li
+                      key={idx}
+                      className="rounded-2xl bg-zinc-950 border border-white/10 p-4 space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/15 border border-red-500/30 text-sm">
+                            🥤
+                          </span>
+                          <span className="font-semibold text-white text-sm">
+                            {s.name || "Supporter"}
+                          </span>
+                        </div>
+                        <span className="rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-xs font-bold text-red-300">
+                          +${s.amount / 100}
+                        </span>
+                      </div>
+                      {s.message && (
+                        <p className="text-xs sm:text-sm text-zinc-300 bg-zinc-900 rounded-xl px-3.5 py-2 border border-white/5 italic">
+                          &ldquo;{s.message}&rdquo;
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                  <span className="text-3xl mb-2">🥤</span>
+                  <p className="text-sm font-semibold text-zinc-300">
+                    No donations yet
+                  </p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Be the first to buy @{username} an ice-cold Coke!
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Make a Payment Card */}
+          <div className="lg:col-span-6">
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                      Buy @{username} a Coke
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Send a direct tip and leave a public fan message.
+                    </p>
+                  </div>
+                  <span className="text-3xl">🥤</span>
+                </div>
+
+                {/* Quick Tier Selector Buttons */}
+                <div className="mb-5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2.5">
+                    Quick Select Tier
+                  </label>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {QUICK_TIERS.map((tier) => {
+                      const isSelected = Number(amount) === tier.amount;
+                      return (
+                        <button
+                          key={tier.amount}
+                          type="button"
+                          onClick={() => setAmount(String(tier.amount))}
+                          disabled={isLoading}
+                          className={`rounded-2xl p-3 border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-red-600/20 border-red-500 text-white"
+                              : "bg-zinc-950 border-white/10 hover:border-white/25 text-zinc-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-zinc-400">
+                              {tier.label}
+                            </span>
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/10 text-zinc-300">
+                              {tier.badge}
+                            </span>
+                          </div>
+                          <p className="text-lg font-extrabold text-white mt-1">
+                            ${tier.amount}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Form Inputs */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your name (or @handle)"
+                      value={supporterName}
+                      onChange={(e) => setSupporterName(e.target.value)}
+                      className="w-full rounded-xl bg-zinc-950 border border-white/15 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
+                      Fan Message
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Say something nice to support their work..."
+                      value={supporterMessage}
+                      onChange={(e) => setSupporterMessage(e.target.value)}
+                      className="w-full rounded-xl bg-zinc-950 border border-white/15 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
+                      Custom Amount (USD)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Enter amount (e.g. 25)"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="w-full rounded-xl bg-zinc-950 border border-white/15 pl-8 pr-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Primary Pay Button */}
+                  <button
+                    disabled={isLoading || !amount}
+                    onClick={() => startCheckout(Number(amount))}
+                    className="w-full rounded-xl bg-red-600 hover:bg-red-500 text-white py-3.5 font-bold text-sm sm:text-base transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Redirecting to Stripe...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Heart className="w-4 h-4 fill-white" />
+                        <span>
+                          Support with {amount ? `$${amount}` : "a Coke"}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Instant One-Click Pay Buttons */}
+                  <div className="pt-2">
+                    <p className="text-[11px] text-zinc-500 text-center mb-2">
+                      Or instant 1-click checkout:
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[10, 50, 100].map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => startCheckout(amt)}
+                          disabled={isLoading}
+                          className="rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/10 py-2 text-xs font-semibold text-zinc-200 hover:text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Pay ${amt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Encrypted & processed securely via Stripe</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ProtectedRoute>
   );
 };
 
