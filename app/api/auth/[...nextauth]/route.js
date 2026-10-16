@@ -30,26 +30,54 @@ export const authOptions = {
       async authorize(credentials) {
         await dbConnect();
 
-        const user = await User.findOne({ email: credentials.email });
+        const email = credentials?.email?.trim().toLowerCase();
+        const user = await User.findOne({ email });
 
         if (!user) {
           throw new Error("No user found with this email");
         }
 
         if (user.signMethod !== "local") {
-          throw new Error("Please sign in with GitHub");
+          throw new Error(`Please sign in with ${user.signMethod}`);
         }
 
         if (user.status !== "active") {
           throw new Error("Please complete OTP verification first");
         }
 
-        // Hash and update the password (replacing the dummy one from OTP phase)
-        const hashedPassword = await bcrypt.hash(credentials.password, 10);
-        user.password = hashedPassword;
-        // create username from email prefix
-        const username = user.email.split("@")[0];
-        user.username = username;
+        // Check if this is initial signup completion or an existing user logging in
+        const isInitialPasswordSetup =
+          !user.password || user.password === "temp_pending_password";
+
+        if (isInitialPasswordSetup) {
+          const hashedPassword = await bcrypt.hash(credentials.password, 10);
+          user.password = hashedPassword;
+        } else {
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+          if (!isPasswordValid) {
+            throw new Error("Invalid email or password");
+          }
+        }
+
+        // Ensure user has a valid unique username and display name
+        if (!user.username || user.username === "pending") {
+          const baseUsername = user.email.split("@")[0];
+          const existingUsername = await User.findOne({
+            username: baseUsername,
+            _id: { $ne: user._id },
+          });
+          user.username = existingUsername
+            ? `${baseUsername}_${Math.floor(1000 + Math.random() * 9000)}`
+            : baseUsername;
+        }
+
+        if (!user.name || user.name === "pending") {
+          user.name = user.username;
+        }
+
         await user.save();
 
         // Return user object (will be available in JWT and session)

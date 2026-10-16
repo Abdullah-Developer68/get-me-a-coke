@@ -50,21 +50,28 @@ const Signup = () => {
     toast("Sending OTP...");
     setOtpButton("Sending...");
 
-    const res = await fetch("/api/auth/localAuth/genOTP", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: "", receiverEmail }),
-    });
+    try {
+      const res = await fetch("/api/auth/localAuth/genOTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: "", receiverEmail }),
+      });
 
-    if (res.ok) {
-      toast.success("OTP sent to your email!");
-      setOtpButton("Resend");
-      setShowOtpBox(true);
-    } else {
-      toast.error("Error sending OTP");
-      setOtpButton("Resend");
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        toast.success(data.message || "OTP sent to your email!");
+        setOtpButton("Resend");
+        setShowOtpBox(true);
+      } else {
+        toast.error(data.message || "Error sending OTP");
+        setOtpButton("Send OTP");
+      }
+    } catch (error) {
+      toast.error("Network error while sending OTP");
+      setOtpButton("Send OTP");
     }
   };
 
@@ -74,21 +81,32 @@ const Signup = () => {
       toast.error("Please enter a valid 6-digit OTP");
       return;
     }
-    const res = await fetch("/api/auth/localAuth/verifyOTP", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email: receiverEmail, otp }),
-    });
 
-    if (res.ok) {
-      toast.success("OTP verified! Please choose a secure password.");
-      setIsOtpVerified(true);
-      setShowPassBox(true);
-      setShowOtpBox(false);
-    } else {
-      toast.error("OTP verification failed. Please try again!");
+    try {
+      const res = await fetch("/api/auth/localAuth/verifyOTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: receiverEmail, otp }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        toast.success(
+          data.message || "OTP verified! Please choose a secure password."
+        );
+        setIsOtpVerified(true);
+        setShowPassBox(true);
+        setShowOtpBox(false);
+      } else {
+        toast.error(
+          data.message || "OTP verification failed. Please try again!"
+        );
+      }
+    } catch (error) {
+      toast.error("Network error while verifying OTP");
     }
   };
 
@@ -208,8 +226,10 @@ const Signup = () => {
                       placeholder="you@example.com"
                       value={receiverEmail}
                       onChange={(e) => setReceiverEmail(e.target.value)}
-                      disabled={isOtpVerified}
-                      className="pl-10 h-11 rounded-xl bg-zinc-950 border-white/15 text-white placeholder:text-zinc-500 focus-visible:ring-red-500/40 focus-visible:border-red-500"
+                      readOnly={isOtpVerified}
+                      className={`pl-10 h-11 rounded-xl bg-zinc-950 border-white/15 text-white placeholder:text-zinc-500 focus-visible:ring-red-500/40 focus-visible:border-red-500 ${
+                        isOtpVerified ? "opacity-60 cursor-not-allowed" : ""
+                      }`}
                       required
                     />
                   </div>
