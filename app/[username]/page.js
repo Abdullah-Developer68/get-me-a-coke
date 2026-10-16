@@ -258,75 +258,72 @@ const Username = () => {
             )}
           </div>
 
-          {/* Creator Identity Card Overlapping Cover */}
+          {/* Creator Identity Card Arranged Vertically */}
           <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 sm:-mt-24 relative z-10">
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl">
-              <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
-                {/* Avatar + Name + Tagline */}
-                <div className="flex flex-col md:flex-row items-center md:items-center gap-5 text-center md:text-left">
-                  <div className="relative -mt-16 md:-mt-14 shrink-0">
-                    {profile ? (
-                      <Image
-                        src={profile}
-                        alt={username}
-                        width={128}
-                        height={128}
-                        priority
-                        sizes="128px"
-                        className="relative w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-zinc-950 ring-2 ring-red-500/40 bg-zinc-900 shadow-2xl"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="relative w-28 h-28 rounded-full bg-zinc-800 animate-pulse" />
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                      <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                        @{username}
-                      </h1>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-xs font-semibold text-red-400">
-                        <Sparkles className="w-3 h-3" />
-                        Creator
-                      </span>
-                    </div>
-                    <p className="text-sm sm:text-base text-zinc-300 max-w-xl">
-                      {isSessionLoading ? "Loading profile..." : tagline}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Copy Profile Link Pill */}
-                <div className="flex items-center gap-2 rounded-full bg-zinc-950 border border-white/15 pl-4 pr-2 py-1.5 max-w-full">
-                  <span className="text-xs text-zinc-400 truncate max-w-[180px] sm:max-w-[240px] font-mono">
-                    {profileUrl}
-                  </span>
-                  <button
-                    onClick={copyToClipboard}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 hover:bg-red-600 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:text-white transition-colors cursor-pointer shrink-0"
-                    title={copied ? "Copied!" : "Copy link"}
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Share</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center">
+              {/* Avatar centered on top */}
+              <div className="relative -mt-20 sm:-mt-22 mb-4 shrink-0">
+                {profile ? (
+                  <Image
+                    src={profile}
+                    alt={username}
+                    width={128}
+                    height={128}
+                    priority
+                    sizes="128px"
+                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-zinc-950 ring-2 ring-white/20 bg-zinc-900 shadow-2xl"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-28 h-28 rounded-full bg-zinc-800 animate-pulse" />
+                )}
               </div>
 
-              {/* Creator Stats Bar */}
-              <div className="mt-7 pt-6 border-t border-white/10 grid grid-cols-3 gap-4">
+              {/* Username + Badge */}
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  @{username}
+                </h1>
+                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-800 border border-white/15 px-2.5 py-0.5 text-xs font-semibold text-white">
+                  <Sparkles className="w-3 h-3 text-white" />
+                  Creator
+                </span>
+              </div>
+
+              {/* Tagline */}
+              <p className="text-sm sm:text-base text-zinc-300 max-w-xl mb-4">
+                {isSessionLoading ? "Loading profile..." : tagline}
+              </p>
+
+              {/* Copy Profile Link Pill */}
+              <div className="flex items-center gap-2 rounded-full bg-zinc-950 border border-white/15 pl-4 pr-2 py-1.5 max-w-full mb-6">
+                <span className="text-xs text-zinc-400 truncate max-w-[200px] sm:max-w-[320px] font-mono">
+                  {profileUrl}
+                </span>
+                <button
+                  onClick={copyToClipboard}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 text-xs font-semibold text-white border border-white/10 transition-colors cursor-pointer shrink-0"
+                  title={copied ? "Copied!" : "Copy link"}
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-white" />
+                      <span>Share</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Creator Stats Bar - Neutral White Icons */}
+              <div className="w-full pt-6 border-t border-white/10 grid grid-cols-3 gap-3 sm:gap-4 text-left">
                 <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
-                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-red-500/10 border border-red-500/20 items-center justify-center text-red-400 shrink-0">
-                    <Gift className="w-5 h-5" />
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
+                    <Gift className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="text-lg sm:text-2xl font-extrabold text-white">
@@ -339,8 +336,8 @@ const Username = () => {
                 </div>
 
                 <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
-                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 items-center justify-center text-amber-400 shrink-0">
-                    <Users className="w-5 h-5" />
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
+                    <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="text-lg sm:text-2xl font-extrabold text-white">
@@ -353,8 +350,8 @@ const Username = () => {
                 </div>
 
                 <div className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 flex items-center gap-3.5">
-                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center text-emerald-400 shrink-0">
-                    <DollarSign className="w-5 h-5" />
+                  <div className="hidden sm:flex h-10 w-10 rounded-xl bg-zinc-800 border border-white/10 items-center justify-center text-white shrink-0">
+                    <DollarSign className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="text-lg sm:text-2xl font-extrabold text-white">
@@ -453,8 +450,14 @@ const Username = () => {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/15 border border-red-500/30 text-sm">
-                            🥤
+                          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-600 p-1">
+                            <Image
+                              src="/logo.jpg"
+                              alt="Coke"
+                              width={24}
+                              height={24}
+                              className="rounded-lg object-cover w-full h-full"
+                            />
                           </span>
                           <span className="font-semibold text-white text-sm">
                             {s.name || "Supporter"}
@@ -474,7 +477,15 @@ const Username = () => {
                 </ul>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
-                  <span className="text-3xl mb-2">🥤</span>
+                  <div className="w-12 h-12 rounded-2xl bg-red-600 p-0.5 mb-2 flex items-center justify-center">
+                    <Image
+                      src="/logo.jpg"
+                      alt="Coke"
+                      width={44}
+                      height={44}
+                      className="rounded-[14px] object-cover w-full h-full"
+                    />
+                  </div>
                   <p className="text-sm font-semibold text-zinc-300">
                     No donations yet
                   </p>
@@ -499,7 +510,15 @@ const Username = () => {
                       Send a direct tip and leave a public fan message.
                     </p>
                   </div>
-                  <span className="text-3xl">🥤</span>
+                  <div className="relative w-10 h-10 rounded-xl bg-red-600 p-0.5 shadow-md flex items-center justify-center shrink-0">
+                    <Image
+                      src="/logo.jpg"
+                      alt="Coke"
+                      width={36}
+                      height={36}
+                      className="rounded-[9px] object-cover w-full h-full"
+                    />
+                  </div>
                 </div>
 
                 {/* Quick Tier Selector Buttons */}

@@ -54,7 +54,6 @@ const VALUE_PILLARS = [
     subtitle: "Direct, meaningful appreciation",
     description:
       "Give your audience an effortless way to say thank you for every tutorial, stream, open-source release, or video you ship.",
-    gif: "/man.gif",
     icon: HeartHandshake,
     badge: "Community First",
   },
@@ -63,7 +62,6 @@ const VALUE_PILLARS = [
     subtitle: "Frictionless Stripe checkout",
     description:
       "Turn appreciation into sustainable income in seconds. Supporters pick a Coke tier, leave a message, and fund your next big idea.",
-    gif: "/coin.gif",
     icon: Coins,
     badge: "Instant Support",
   },
@@ -72,7 +70,6 @@ const VALUE_PILLARS = [
     subtitle: "Build your inner circle",
     description:
       "Recognize your top supporters on your public leaderboard, celebrate every milestone, and turn casual viewers into superfans.",
-    gif: "/group.gif",
     icon: Users,
     badge: "Superfan Leaderboard",
   },
@@ -123,7 +120,14 @@ export default function Home() {
                 unoptimized
               />
               <span className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-lg ring-2 ring-[#09090b]">
-                🥤 $10
+                <Image
+                  src="/logo.jpg"
+                  alt="Coke"
+                  width={14}
+                  height={14}
+                  className="rounded-full object-cover"
+                />
+                <span>$10</span>
               </span>
             </div>
           </div>
@@ -148,63 +152,56 @@ export default function Home() {
               href={userInfo?.username ? `/${userInfo.username}` : "/signup"}
             >
               <button className="inline-flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-500 px-7 py-3.5 text-sm sm:text-base font-semibold text-white transition-colors duration-200 cursor-pointer">
-                <span>
-                  {userInfo?.username
-                    ? "View Your Creator Page"
-                    : "Start Your Free Page"}
-                </span>
+                <span>{userInfo ? "View Your Page" : "Get Started Free"}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
+
             <Link href="/dashboard">
-              <button className="inline-flex items-center gap-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/15 px-6 py-3.5 text-sm sm:text-base font-medium text-zinc-200 transition-colors duration-200 cursor-pointer">
-                <Sparkles className="w-4 h-4 text-red-400" />
-                <span>Customize Dashboard</span>
+              <button className="inline-flex items-center gap-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/15 px-7 py-3.5 text-sm sm:text-base font-semibold text-zinc-200 hover:text-white transition-colors duration-200 cursor-pointer">
+                <span>Creator Studio</span>
               </button>
             </Link>
           </div>
 
-          {/* Trust & Feature Badges */}
-          <div className="mt-10 pt-8 border-t border-white/10 grid grid-cols-3 gap-4 sm:gap-12 max-w-xl w-full text-center">
-            <div>
-              <p className="text-xl sm:text-2xl font-extrabold text-white">
-                60 sec
-              </p>
-              <p className="text-xs text-zinc-400 mt-0.5">Page Setup</p>
+          {/* Micro Proof Stats */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-zinc-400 pt-8 border-t border-white/10 max-w-xl">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>0% Platform Fees to Start</span>
             </div>
-            <div className="border-x border-white/10 px-2">
-              <p className="text-xl sm:text-2xl font-extrabold text-red-500">
-                1-Click
-              </p>
-              <p className="text-xs text-zinc-400 mt-0.5">Stripe Checkout</p>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Instant Stripe Payouts</span>
             </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-extrabold text-white">
-                Live
-              </p>
-              <p className="text-xs text-zinc-400 mt-0.5">Fan Leaderboards</p>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Custom Creator URL</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FEATURED CREATORS SECTION */}
-      <section className="relative py-16 border-t border-white/10 bg-zinc-950">
+      {/* SECTION 1: POPULAR & FEATURED CREATORS */}
+      <section className="relative py-16 md:py-20 border-t border-white/10 bg-zinc-950/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-red-400 mb-2">
-                <TrendingUp className="w-3.5 h-3.5" />
-                Creator Spotlight
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Featured Creators on Get Me A Coke
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-red-400 mb-1.5">
+                <TrendingUp className="w-4 h-4" />
+                Featured Creators
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Fueling Top Makers Everywhere
               </h2>
             </div>
-            <p className="text-sm text-zinc-400 max-w-md">
-              Explore how top creators use their custom profile pages to collect
-              fan messages and donations.
-            </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+            >
+              <span>Explore all creators</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -212,21 +209,20 @@ export default function Home() {
               <Link
                 key={creator.username}
                 href={`/${creator.username}`}
-                className="group relative rounded-2xl bg-zinc-900 hover:bg-zinc-900/80 border border-white/10 hover:border-red-500/50 p-6 transition-all duration-200 flex flex-col justify-between shadow-lg"
+                className="group relative rounded-2xl bg-zinc-900 hover:bg-zinc-900/80 border border-white/10 hover:border-red-500/40 p-6 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3">
                       <Image
                         src={creator.avatar}
                         alt={creator.name}
-                        width={56}
-                        height={56}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-white/15 group-hover:border-red-500 transition-colors"
-                        unoptimized
+                        width={48}
+                        height={48}
+                        className="rounded-full object-cover ring-2 ring-white/10 group-hover:ring-red-500/40 transition-colors"
                       />
                       <div>
-                        <h3 className="text-base font-bold text-white group-hover:text-red-400 transition-colors">
+                        <h3 className="font-bold text-white group-hover:text-red-400 transition-colors">
                           {creator.name}
                         </h3>
                         <p className="text-xs font-medium text-zinc-400">
@@ -248,12 +244,20 @@ export default function Home() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                  <span className="text-zinc-400">
-                    🥤{" "}
-                    <strong className="text-zinc-200">
-                      {creator.supporters}
-                    </strong>{" "}
-                    supporters
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <Image
+                      src="/logo.jpg"
+                      alt="Coke"
+                      width={14}
+                      height={14}
+                      className="rounded-full object-cover"
+                    />
+                    <span>
+                      <strong className="text-zinc-200">
+                        {creator.supporters}
+                      </strong>{" "}
+                      supporters
+                    </span>
                   </span>
                   <span className="inline-flex items-center gap-1 font-semibold text-red-400 group-hover:translate-x-1 transition-transform">
                     Buy a Coke
@@ -293,18 +297,11 @@ export default function Home() {
                 >
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-6">
-                      <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-800 border border-white/10 p-2.5">
-                        <Image
-                          src={item.gif}
-                          alt={item.title}
-                          width={56}
-                          height={56}
-                          className="rounded-xl w-full h-full object-contain"
-                          unoptimized
-                        />
+                      <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-800 border border-white/10 text-white shadow-sm">
+                        <Icon className="w-6 h-6 text-white" strokeWidth={1.75} />
                       </div>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 border border-white/10 px-3 py-1 text-xs font-medium text-zinc-300">
-                        <Icon className="w-3.5 h-3.5 text-red-400" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-800 border border-white/10 px-3 py-1 text-xs font-medium text-white">
+                        <Icon className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
                         {item.badge}
                       </span>
                     </div>

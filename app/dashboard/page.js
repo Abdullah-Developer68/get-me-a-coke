@@ -287,18 +287,45 @@ export default function Dashboard() {
                 </p>
 
                 <div className="mt-5 w-full pt-4 border-t border-white/10 flex items-center justify-around text-xs text-zinc-400">
-                  <div>
-                    <p className="font-bold text-white text-sm">🥤 $10</p>
+                  <div className="flex flex-col items-center">
+                    <p className="font-bold text-white text-sm flex items-center gap-1.5">
+                      <Image
+                        src="/logo.jpg"
+                        alt="Coke"
+                        width={16}
+                        height={16}
+                        className="rounded-full object-cover"
+                      />
+                      $10
+                    </p>
                     <p>1 Coke</p>
                   </div>
                   <div className="h-6 w-px bg-white/10" />
-                  <div>
-                    <p className="font-bold text-white text-sm">🥤 $50</p>
+                  <div className="flex flex-col items-center">
+                    <p className="font-bold text-white text-sm flex items-center gap-1.5">
+                      <Image
+                        src="/logo.jpg"
+                        alt="Coke"
+                        width={16}
+                        height={16}
+                        className="rounded-full object-cover"
+                      />
+                      $50
+                    </p>
                     <p>5 Cokes</p>
                   </div>
                   <div className="h-6 w-px bg-white/10" />
-                  <div>
-                    <p className="font-bold text-white text-sm">🥤 $100</p>
+                  <div className="flex flex-col items-center">
+                    <p className="font-bold text-white text-sm flex items-center gap-1.5">
+                      <Image
+                        src="/logo.jpg"
+                        alt="Coke"
+                        width={16}
+                        height={16}
+                        className="rounded-full object-cover"
+                      />
+                      $100
+                    </p>
                     <p>10 Cokes</p>
                   </div>
                 </div>
