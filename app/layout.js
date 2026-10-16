@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "sonner/dist/styles.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -37,13 +38,17 @@ export default function RootLayout({ children }) {
               <Navbar />
 
               <main className="relative flex-1 overflow-x-hidden bg-[#09090b]">
-                <div className="relative z-10">
-                  {children}
-                  <Toaster position="top-center" richColors theme="dark" />
-                </div>
+                {children}
               </main>
 
               <Footer />
+              <Toaster
+                position="top-center"
+                richColors
+                theme="dark"
+                offset="80px"
+                style={{ zIndex: 999999 }}
+              />
             </ReduxProvider>
           </AuthProvider>
         </SessionWrapper>

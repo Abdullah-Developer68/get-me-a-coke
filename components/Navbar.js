@@ -36,9 +36,10 @@ const Navbar = () => {
     pathname.split("/").length === 2;
 
   const handleSignOut = () => {
+    localStorage.setItem("logoutSuccess", "true");
     dispatch(tellToFetchData(true));
     clearDataOnLogout();
-    signOut();
+    signOut({ callbackUrl: "/" });
   };
 
   const activeUsername = userInfo?.username || session?.user?.username;

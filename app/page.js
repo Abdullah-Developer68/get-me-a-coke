@@ -85,11 +85,18 @@ export default function Home() {
     if (
       userInfo &&
       (localStorage.getItem("googleLogin") === "true" ||
-        localStorage.getItem("githubLogin") === "true")
+        localStorage.getItem("githubLogin") === "true" ||
+        localStorage.getItem("loginSuccess") === "true")
     ) {
       toast.success("You have successfully logged in ...");
       localStorage.setItem("googleLogin", "false");
       localStorage.setItem("githubLogin", "false");
+      localStorage.removeItem("loginSuccess");
+    }
+
+    if (localStorage.getItem("logoutSuccess") === "true") {
+      toast.success("You have successfully logged out");
+      localStorage.removeItem("logoutSuccess");
     }
   }, [userInfo]);
 

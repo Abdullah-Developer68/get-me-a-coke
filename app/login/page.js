@@ -46,6 +46,7 @@ const Login = () => {
       if (result?.error) {
         toast.error("Invalid email or password");
       } else {
+        localStorage.setItem("loginSuccess", "true");
         toast.success("Login successful");
         router.replace("/");
       }
