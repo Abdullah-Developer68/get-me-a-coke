@@ -10,7 +10,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   Copy,
   Check,
-  Trophy,
   Heart,
   Sparkles,
   Users,
@@ -20,7 +19,6 @@ import {
   ShieldCheck,
   Loader2,
   Crown,
-  Flame,
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -92,6 +90,7 @@ const Username = () => {
   const [averageAmount, setAverageAmount] = useState(0);
   const [copied, setCopied] = useState(false);
   const [profileUrl, setProfileUrl] = useState("");
+  const [activeTab, setActiveTab] = useState("leaderboard"); // "leaderboard" | "recent"
 
   const [profile, setProfile] = useState(
     PRESET_PROFILES[username]?.profilePic || "/profilePic.png"
@@ -387,237 +386,251 @@ const Username = () => {
           </div>
         </div>
 
-        {/* MAIN 2-COLUMN CONTENT: LEADERBOARD + DONATION CHECKOUT */}
+        {/* MAIN 2-COLUMN CONTENT: UNIFIED SUPPORTER ACTIVITY CARD + DONATION CHECKOUT */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mt-6 sm:mt-8 w-full max-w-5xl px-4 sm:px-6">
-          {/* Left Column: Top Supporters & Recent Activity */}
+          {/* Left Column: Unified Activity Card with Toggle Switch */}
           <div className="lg:col-span-6 flex flex-col gap-6 order-2 lg:order-1">
-            {/* Top Supporters Leaderboard Card */}
             <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-6 shadow-xl">
-              <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25">
-                    <Crown className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                      Top Supporters
-                    </h3>
-                    <p className="text-[11px] text-zinc-400">
-                      Ranked by total micro-patronage
-                    </p>
-                  </div>
+              {/* Top Switcher Buttons */}
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-5 pb-4 border-b border-white/10">
+                {/* Switcher Pill */}
+                <div className="inline-flex items-center p-1 rounded-2xl bg-zinc-950 border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("leaderboard")}
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                      activeTab === "leaderboard"
+                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-950"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <Crown className="w-4 h-4" />
+                    <span>Top Supporters</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("recent")}
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                      activeTab === "recent"
+                        ? "bg-zinc-800 text-white border border-white/10 shadow-sm"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <MessageSquareHeart className="w-4 h-4" />
+                    <span>Recent Donations</span>
+                  </button>
                 </div>
-                <span className="text-[11px] font-semibold text-zinc-400 bg-zinc-950 border border-white/10 px-2.5 py-1 rounded-full">
-                  {topSupporters.length} Ranked
+
+                {/* Subtitle / Counter pill */}
+                <span className="text-[11px] font-semibold text-zinc-400 bg-zinc-950 border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                  {activeTab === "leaderboard" ? (
+                    <>
+                      <Crown className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{topSupporters.length} Ranked</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>Live ({payData.length})</span>
+                    </>
+                  )}
                 </span>
               </div>
 
-              {topSupporters.length > 0 ? (
-                <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-zinc-700 hover:scrollbar-thumb-zinc-600">
-                  {topSupporters.map((s, idx) => {
-                    const cokesCount = Math.round(s.totalAmount / 1000);
-                    return (
-                      <div
-                        key={idx}
-                        className={`rounded-2xl p-3 sm:p-3.5 transition-colors border ${
-                          idx === 0
-                            ? "bg-amber-500/10 border-amber-500/30"
-                            : idx === 1
-                            ? "bg-zinc-800/60 border-zinc-500/30"
-                            : idx === 2
-                            ? "bg-amber-900/15 border-amber-700/30"
-                            : "bg-zinc-950 border-white/10 hover:border-white/20"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          {/* Rank Icon + Name + Details */}
-                          <div className="flex items-center gap-3 min-w-0">
-                            {/* Modern Rank Badge Icon */}
-                            <div
-                              className={`flex h-9 w-9 items-center justify-center rounded-xl font-extrabold text-xs shrink-0 border ${
-                                idx === 0
-                                  ? "bg-amber-400 text-zinc-950 border-amber-300 shadow-md shadow-amber-500/20"
-                                  : idx === 1
-                                  ? "bg-zinc-200 text-zinc-950 border-white shadow-md shadow-zinc-400/20"
-                                  : idx === 2
-                                  ? "bg-amber-700 text-amber-100 border-amber-600 shadow-md shadow-amber-900/20"
-                                  : "bg-zinc-900 text-zinc-300 border-white/10"
-                              }`}
-                            >
-                              {idx === 0 ? (
-                                <Crown className="w-4 h-4 fill-zinc-950" />
-                              ) : (
-                                `#${idx + 1}`
-                              )}
-                            </div>
+              {/* TAB 1: TOP SUPPORTERS (GREEN THEME) */}
+              {activeTab === "leaderboard" && (
+                <div>
+                  {topSupporters.length > 0 ? (
+                    <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-zinc-700 hover:scrollbar-thumb-zinc-600">
+                      {topSupporters.map((s, idx) => {
+                        const cokesCount = Math.round(s.totalAmount / 1000);
+                        return (
+                          <div
+                            key={idx}
+                            className={`rounded-2xl p-3 sm:p-3.5 transition-colors border ${
+                              idx === 0
+                                ? "bg-emerald-950/30 border-emerald-500/40"
+                                : idx === 1
+                                ? "bg-emerald-950/20 border-emerald-500/25"
+                                : idx === 2
+                                ? "bg-emerald-950/10 border-emerald-500/20"
+                                : "bg-zinc-950 border-white/10 hover:border-white/20"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              {/* Rank Icon + Name + Details */}
+                              <div className="flex items-center gap-3 min-w-0">
+                                {/* Modern Green Rank Badge Icon */}
+                                <div
+                                  className={`flex h-9 w-9 items-center justify-center rounded-xl font-extrabold text-xs shrink-0 border ${
+                                    idx === 0
+                                      ? "bg-emerald-500 text-zinc-950 border-emerald-400 shadow-md shadow-emerald-500/20"
+                                      : idx === 1
+                                      ? "bg-emerald-600/80 text-white border-emerald-500/60 shadow-md shadow-emerald-900/30"
+                                      : idx === 2
+                                      ? "bg-emerald-700/60 text-emerald-100 border-emerald-600/50"
+                                      : "bg-zinc-900 text-zinc-300 border-white/10"
+                                  }`}
+                                >
+                                  {idx === 0 ? (
+                                    <Crown className="w-4 h-4 fill-zinc-950 text-zinc-950" />
+                                  ) : (
+                                    `#${idx + 1}`
+                                  )}
+                                </div>
 
-                            <div className="min-w-0">
-                              <p className="font-semibold text-white text-sm truncate">
-                                {s.name || "Anonymous Fan"}
-                              </p>
-                              <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
-                                <span className="flex items-center gap-1">
-                                  <Image
-                                    src="/logo.jpg"
-                                    alt="Coke"
-                                    width={12}
-                                    height={12}
-                                    className="rounded-full object-cover shrink-0"
-                                  />
-                                  <span>
-                                    {cokesCount > 0
-                                      ? `${cokesCount} ${
-                                          cokesCount === 1 ? "Coke" : "Cokes"
-                                        }`
-                                      : "Supporter"}
-                                  </span>
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-white text-sm truncate">
+                                    {s.name || "Anonymous Fan"}
+                                  </p>
+                                  <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
+                                    <span className="flex items-center gap-1">
+                                      <Image
+                                        src="/logo.jpg"
+                                        alt="Coke"
+                                        width={12}
+                                        height={12}
+                                        className="rounded-full object-cover shrink-0"
+                                      />
+                                      <span>
+                                        {cokesCount > 0
+                                          ? `${cokesCount} ${
+                                              cokesCount === 1 ? "Coke" : "Cokes"
+                                            }`
+                                          : "Supporter"}
+                                      </span>
+                                    </span>
+                                    {s.count && s.count > 1 && (
+                                      <>
+                                        <span>&middot;</span>
+                                        <span>{s.count} gifts</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Donated Amount Badge (Green) */}
+                              <div className="flex flex-col items-end shrink-0">
+                                <span
+                                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border ${
+                                    idx === 0
+                                      ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                      : idx === 1
+                                      ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+                                      : idx === 2
+                                      ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-300"
+                                      : "bg-zinc-900 border-white/10 text-zinc-300"
+                                  }`}
+                                >
+                                  ${s.totalAmount / 100}
                                 </span>
-                                {s.count && s.count > 1 && (
-                                  <>
-                                    <span>&middot;</span>
-                                    <span>{s.count} gifts</span>
-                                  </>
+                                {s.lastPaymentAt && (
+                                  <span className="text-[10px] text-zinc-500 mt-1 flex items-center gap-0.5">
+                                    <Clock className="w-2.5 h-2.5" />
+                                    {formatTimeAgo(s.lastPaymentAt)}
+                                  </span>
                                 )}
                               </div>
                             </div>
                           </div>
-
-                          {/* Donated Amount Badge */}
-                          <div className="flex flex-col items-end shrink-0">
-                            <span
-                              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border ${
-                                idx === 0
-                                  ? "bg-amber-400/20 border-amber-400/40 text-amber-300"
-                                  : idx === 1
-                                  ? "bg-zinc-100/15 border-zinc-300/30 text-zinc-200"
-                                  : idx === 2
-                                  ? "bg-amber-600/20 border-amber-600/40 text-amber-200"
-                                  : "bg-zinc-900 border-white/10 text-zinc-300"
-                              }`}
-                            >
-                              ${s.totalAmount / 100}
-                            </span>
-                            {s.lastPaymentAt && (
-                              <span className="text-[10px] text-zinc-500 mt-1 flex items-center gap-0.5">
-                                <Clock className="w-2.5 h-2.5" />
-                                {formatTimeAgo(s.lastPaymentAt)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 mb-2 flex items-center justify-center">
+                        <Crown className="w-6 h-6 text-emerald-400" />
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25 mb-2 flex items-center justify-center">
-                    <Crown className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <p className="text-sm font-semibold text-zinc-300">
-                    No supporters on the leaderboard yet
-                  </p>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    Buy the first Coke to claim the #1 spot!
-                  </p>
+                      <p className="text-sm font-semibold text-zinc-300">
+                        No supporters on the leaderboard yet
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Buy the first Coke to claim the #1 spot!
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
 
-            {/* Recent Donations Live Feed Card */}
-            <div className="rounded-3xl bg-zinc-900 border border-white/15 p-5 sm:p-6 shadow-xl">
-              <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-red-600/15 border border-red-500/25">
-                    <MessageSquareHeart className="w-4 h-4 text-red-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                      Recent Donations
-                    </h3>
-                    <p className="text-[11px] text-zinc-400">
-                      Live supporter messages & tips
-                    </p>
-                  </div>
-                </div>
-                <span className="text-[11px] font-semibold text-zinc-400 bg-zinc-950 border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Feed ({payData.length})
-                </span>
-              </div>
-
-              {payData.length > 0 ? (
-                <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-zinc-700 hover:scrollbar-thumb-zinc-600">
-                  {payData.map((s, idx) => {
-                    const cokesGiven = Math.round((s.amount || 0) / 1000);
-                    return (
-                      <div
-                        key={idx}
-                        className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 space-y-2 hover:border-white/20 transition-colors"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-600 p-1">
-                              <Image
-                                src="/logo.jpg"
-                                alt="Coke"
-                                width={24}
-                                height={24}
-                                className="rounded-lg object-cover w-full h-full"
-                              />
-                            </span>
-                            <div className="min-w-0">
-                              <span className="font-semibold text-white text-sm truncate block">
-                                {s.name || "Generous Supporter"}
-                              </span>
-                              <span className="text-[11px] text-zinc-500 flex items-center gap-1">
-                                {cokesGiven > 0 ? (
-                                  <span>
-                                    Bought {cokesGiven}{" "}
-                                    {cokesGiven === 1 ? "Coke" : "Cokes"}
+              {/* TAB 2: RECENT DONATIONS */}
+              {activeTab === "recent" && (
+                <div>
+                  {payData.length > 0 ? (
+                    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-zinc-700 hover:scrollbar-thumb-zinc-600">
+                      {payData.map((s, idx) => {
+                        const cokesGiven = Math.round((s.amount || 0) / 1000);
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded-2xl bg-zinc-950 border border-white/10 p-3.5 sm:p-4 space-y-2 hover:border-white/20 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-600 p-1">
+                                  <Image
+                                    src="/logo.jpg"
+                                    alt="Coke"
+                                    width={24}
+                                    height={24}
+                                    className="rounded-lg object-cover w-full h-full"
+                                  />
+                                </span>
+                                <div className="min-w-0">
+                                  <span className="font-semibold text-white text-sm truncate block">
+                                    {s.name || "Generous Supporter"}
                                   </span>
-                                ) : (
-                                  <span>Tipped creator</span>
-                                )}
-                                {s.createdAt && (
-                                  <>
-                                    <span>&middot;</span>
-                                    <span>{formatTimeAgo(s.createdAt)}</span>
-                                  </>
-                                )}
+                                  <span className="text-[11px] text-zinc-500 flex items-center gap-1">
+                                    {cokesGiven > 0 ? (
+                                      <span>
+                                        Bought {cokesGiven}{" "}
+                                        {cokesGiven === 1 ? "Coke" : "Cokes"}
+                                      </span>
+                                    ) : (
+                                      <span>Tipped creator</span>
+                                    )}
+                                    {s.createdAt && (
+                                      <>
+                                        <span>&middot;</span>
+                                        <span>{formatTimeAgo(s.createdAt)}</span>
+                                      </>
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                              <span className="rounded-full bg-red-500/15 border border-red-500/30 px-3 py-1 text-xs font-bold text-red-300 shrink-0">
+                                +${s.amount / 100}
                               </span>
                             </div>
+                            {s.message && (
+                              <p className="text-xs sm:text-sm text-zinc-300 bg-zinc-900 rounded-xl px-3.5 py-2 border border-white/5 italic break-words">
+                                &ldquo;{s.message}&rdquo;
+                              </p>
+                            )}
                           </div>
-                          <span className="rounded-full bg-red-500/15 border border-red-500/30 px-3 py-1 text-xs font-bold text-red-300 shrink-0">
-                            +${s.amount / 100}
-                          </span>
-                        </div>
-                        {s.message && (
-                          <p className="text-xs sm:text-sm text-zinc-300 bg-zinc-900 rounded-xl px-3.5 py-2 border border-white/5 italic break-words">
-                            &ldquo;{s.message}&rdquo;
-                          </p>
-                        )}
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
+                      <div className="w-12 h-12 rounded-2xl bg-red-600 p-0.5 mb-2 flex items-center justify-center">
+                        <Image
+                          src="/logo.jpg"
+                          alt="Coke"
+                          width={44}
+                          height={44}
+                          className="rounded-[14px] object-cover w-full h-full"
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-2xl bg-zinc-950 border border-dashed border-white/10">
-                  <div className="w-12 h-12 rounded-2xl bg-red-600 p-0.5 mb-2 flex items-center justify-center">
-                    <Image
-                      src="/logo.jpg"
-                      alt="Coke"
-                      width={44}
-                      height={44}
-                      className="rounded-[14px] object-cover w-full h-full"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold text-zinc-300">
-                    No donations yet
-                  </p>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    Be the first to buy @{username} an ice-cold Coke!
-                  </p>
+                      <p className="text-sm font-semibold text-zinc-300">
+                        No donations yet
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Be the first to buy @{username} an ice-cold Coke!
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
