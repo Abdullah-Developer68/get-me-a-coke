@@ -18,11 +18,10 @@ export async function GET(request) {
   }
 
   try {
-    console.log("getting payments");
-    // Get the 10 most recent payments using .lean() for faster queries as it avoids creating mongoose documents
+    // Get up to 100 recent payments using .lean() for faster queries
     const recentPayments = await Payment.find({ to_user: username })
       .sort({ createdAt: -1 })
-      .limit(10)
+      .limit(100)
       .lean();
 
     return NextResponse.json(recentPayments);
